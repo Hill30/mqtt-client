@@ -10,7 +10,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import com.hill30.android.mqttClient.MessageListener;
 import com.hill30.android.mqttClient.ServiceConnection;
 
 public class MainActivity extends FragmentActivity {

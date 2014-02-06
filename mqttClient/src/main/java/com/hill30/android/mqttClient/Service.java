@@ -19,7 +19,6 @@ public class Service extends android.app.Service {
     public static final String TOPIC_NAME = "com.hill30.android.mqttClient.topic-name";
 
     private Connection connection;
-    private HashMap<String, ConnectionBinder> recipients = new HashMap<String, ConnectionBinder>();
 
     @Override
     public void onCreate() {
@@ -34,16 +33,7 @@ public class Service extends android.app.Service {
                     prefs.getString(BROKER_URL, "tcp://10.0.2.2:1883"),
                     prefs.getString(USER_NAME, "userName"),
                     prefs.getString(PASSWORD, "password")
-            ) {
-
-                @Override
-                public void onMessageReceived(String topic, String message) {
-                    ConnectionBinder recipient = recipients.get(topic);
-                    if (recipient != null)
-                        recipient.onMessageReceived(message);
-                }
-
-            };
+            );
         } catch (MqttException e) {
             e.printStackTrace();
         }
@@ -52,13 +42,5 @@ public class Service extends android.app.Service {
     @Override
     public IBinder onBind(final Intent intent) {
         return new ConnectionBinder(connection, intent);
-    }
-
-    public void registerReceiver(ConnectionBinder connectionBinder) {
-        recipients.put(connectionBinder.getTopic(), connectionBinder);
-    }
-
-    public void unregisterReceiver(ConnectionBinder connectionBinder) {
-        recipients.remove(connectionBinder.getTopic());
     }
 }

@@ -1,6 +1,6 @@
 package com.hill30.android.mqttClient;
 
-import android.content.Intent;
+import android.content.*;
 import android.os.Binder;
 
 import org.eclipse.paho.client.mqttv3.MqttException;
@@ -13,13 +13,13 @@ public class ConnectionBinder extends Binder {
     private final String inboundTopic;
     private final String outboundTopic;
     private String topic;
-    private MessageListener<String> messageListener;
+    private ServiceConnection.MessageListener<String> messageListener;
 
     public ConnectionBinder(Connection connection, Intent intent) {
         this.connection = connection;
         topic = intent.getStringExtra(Service.TOPIC_NAME);
-        inboundTopic = topic + ".Inbound.user";
-        outboundTopic = topic + ".Outbound";
+        inboundTopic = topic + "/Inbound/user";
+        outboundTopic = topic + "/Outbound";
     }
 
 //    @Override
@@ -29,7 +29,7 @@ public class ConnectionBinder extends Binder {
 
 //    @Override
     public void connect() throws MqttException {
-        connection.register(this);
+        connection.registerSubscriber(inboundTopic, this);
         connection.connect(inboundTopic);
     }
 
@@ -43,7 +43,7 @@ public class ConnectionBinder extends Binder {
         connection.send(outboundTopic, message);
     }
 
-    public void listener(MessageListener<String> l) {
-        messageListener = l;
+    public void listener(ServiceConnection.MessageListener<String> listener) {
+        messageListener = listener;
     }
 }

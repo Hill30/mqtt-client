@@ -13,6 +13,10 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 public class ServiceConnection implements android.content.ServiceConnection {
     private ConnectionBinder connectionBinder;
 
+    public interface MessageListener<T> {
+        void onMessageArrived(T message);
+    }
+
     public ServiceConnection(Context context, String topic) {
         context.bindService(
                 new Intent(context, Service.class).putExtra(Service.TOPIC_NAME, topic),

@@ -14,15 +14,18 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MqttDefaultFilePersistence;
 
+import java.util.HashMap;
+
 /**
  * Created by michaelfeingold on 2/5/14.
  */
-public abstract class Connection extends Handler
+public class Connection extends Handler
 {
     public static final String TAG = "MQTT Connection";
     private final MqttConnectOptions connectionOptions;
     private final Service service;
     private MqttAsyncClient mqttClient;
+    private HashMap<String, ConnectionBinder> recipients = new HashMap<String, ConnectionBinder>();
 
     public Connection(Looper looper, Service service, String brokerUrl, String userName, String password) throws MqttException {
         super(looper);
@@ -47,7 +50,9 @@ public abstract class Connection extends Handler
 
             @Override
             public void messageArrived(String topic, MqttMessage message) throws Exception {
-                onMessageReceived(topic, message.toString());
+                ConnectionBinder recipient = recipients.get(topic);
+                if (recipient != null)
+                    recipient.onMessageReceived(message.toString());
                 Log.d(TAG, "message " + message + " received");
             }
 
@@ -58,8 +63,6 @@ public abstract class Connection extends Handler
         });
 
     }
-
-    public abstract void onMessageReceived(String topic, String message);
 
     public void subscribe(final String topic) {
 
@@ -84,10 +87,10 @@ public abstract class Connection extends Handler
 
     public void connect(final String topic) throws MqttException {
 
-        boolean disconnected;
+        boolean connected;
         synchronized (mqttClient) {
-            disconnected = !mqttClient.isConnected();
-            if (disconnected)
+            connected = mqttClient.isConnected();
+            if (!connected)
                 mqttClient.connect(connectionOptions, null, new IMqttActionListener() {
                     @Override
                     public void onSuccess(IMqttToken asyncActionToken) {
@@ -101,20 +104,20 @@ public abstract class Connection extends Handler
                     }
                 });
         }
-        if (!disconnected)
+        if (connected)
             subscribe(topic);
 
     }
 
-    public void register(ConnectionBinder connectionBinder) {
-        service.registerReceiver(connectionBinder);
+    public void registerSubscriber(String topic, ConnectionBinder binder) {
+        recipients.put(topic, binder);
     }
 
-    public void unRegister(ConnectionBinder connectionBinder) {
-        service.unregisterReceiver(connectionBinder);
+    public void unregister(String topic) {
+        recipients.remove(topic);
     }
 
-    public void send(String outboundTopic, String message) throws MqttException {
-        mqttClient.publish(outboundTopic, message.getBytes(), 2, true);
+    public void send(String topic, String message) throws MqttException {
+        mqttClient.publish(topic, message.getBytes(), 2, true);
     }
 }
