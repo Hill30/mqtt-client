@@ -17,5 +17,6 @@
         </activity>
         <service android:name="com.hill30.android.mqttClient.Service"/>
     </application>
+    <uses-permission android:name="android.permission.INTERNET"/>
 
 </manifest>

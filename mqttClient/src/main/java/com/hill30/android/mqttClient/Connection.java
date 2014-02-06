@@ -19,7 +19,7 @@ import org.eclipse.paho.client.mqttv3.persist.MqttDefaultFilePersistence;
  */
 public abstract class Connection extends Handler
 {
-    private static final String TAG = "MQTT Connection";
+    public static final String TAG = "MQTT Connection";
     private final MqttConnectOptions connectionOptions;
     private final Service service;
     private MqttAsyncClient mqttClient;
@@ -61,24 +61,49 @@ public abstract class Connection extends Handler
 
     public abstract void onMessageReceived(String topic, String message);
 
-    public void connect(final String topic_name) throws MqttException {
+    public void subscribe(String topic) {
+        final String inboundTopic = topic + ".inbound.user";
+        try {
+            mqttClient.subscribe(inboundTopic, 2, // QoS = EXACTLY_ONCE
+                    null,
+                    new IMqttActionListener() {
+                        @Override
+                        public void onSuccess(IMqttToken iMqttToken) {
+                            Log.d(TAG, "successfully subscribed to " + inboundTopic);
+                        }
 
-        mqttClient.connect(connectionOptions, null, new IMqttActionListener() {
-            @Override
-            public void onSuccess(IMqttToken asyncActionToken) {
-                try {
-                    Log.d(TAG, "connection - success");
-                    mqttClient.subscribe(topic_name, 2 /*QoS = EXACTLY_ONCE*/);
-                } catch (MqttException e) {
-                    e.printStackTrace();
-                }
-            }
+                        @Override
+                        public void onFailure(IMqttToken iMqttToken, Throwable throwable) {
+                            Log.d(TAG, "subscribe to " + inboundTopic + " failed: " + throwable.toString());
+                        }
+                    });
+        } catch (MqttException e) {
+            e.printStackTrace();
+        }
+    }
 
-            @Override
-            public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
-                Log.d(TAG, "connection failure: " + exception.getMessage());
-            }
-        });
+    public void connect(final String topic) throws MqttException {
+
+        boolean disconnected;
+        synchronized (mqttClient) {
+            disconnected = !mqttClient.isConnected();
+            if (disconnected)
+                mqttClient.connect(connectionOptions, null, new IMqttActionListener() {
+                    @Override
+                    public void onSuccess(IMqttToken asyncActionToken) {
+                        Log.d(TAG, "connected");
+                        subscribe(topic);
+                    }
+
+                    @Override
+                    public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
+                        Log.d(TAG, "connect failed :" + exception.toString());
+                    }
+                });
+        }
+        if (!disconnected)
+            subscribe(topic);
+
     }
 
     public void register(ConnectionBinder connectionBinder) {

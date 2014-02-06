@@ -51,7 +51,7 @@ public class Service extends android.app.Service {
 
     @Override
     public IBinder onBind(final Intent intent) {
-        return new ConnectionBinder(connection, intent.getStringExtra(TOPIC_NAME));
+        return new ConnectionBinder(connection, intent);
     }
 
     public void registerReceiver(ConnectionBinder connectionBinder) {

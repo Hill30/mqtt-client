@@ -1,5 +1,7 @@
 package com.hill30.android.mqttClient;
 
+import android.content.Intent;
+import android.os.Binder;
 import android.os.RemoteException;
 
 import org.eclipse.paho.client.mqttv3.MqttException;
@@ -7,37 +9,27 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 /**
  * Created by michaelfeingold on 2/5/14.
  */
-public class ConnectionBinder extends IConnection.Stub {
+public class ConnectionBinder extends Binder {
     private final Connection connection;
     private String topic;
 
-    public ConnectionBinder(Connection connection, String topic) {
+    public ConnectionBinder(Connection connection, Intent intent) {
         this.connection = connection;
-        this.topic = topic;
+        this.topic = intent.getStringExtra(Service.TOPIC_NAME);
     }
 
-    @Override
+//    @Override
     public String getTopic() {
         return topic;
     }
 
-    @Override
-    public void connect() throws RemoteException {
-        try {
-            connection.connect(topic);
-            connection.register(this);
-            linkToDeath(new DeathRecipient() {
-                @Override
-                public void binderDied() {
-                    connection.unRegister(ConnectionBinder.this);
-                }
-            }, 0);
-        } catch (MqttException e) {
-            e.printStackTrace();
-        }
+//    @Override
+    public void connect() throws MqttException {
+        connection.register(this);
+        connection.connect(topic);
     }
 
-    @Override
+//    @Override
     public void onMessageReceived(String message) {
 
     }

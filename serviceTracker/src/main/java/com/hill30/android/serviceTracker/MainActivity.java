@@ -11,6 +11,8 @@ import android.view.ViewGroup;
 
 import com.hill30.android.mqttClient.ServiceConnection;
 
+import org.eclipse.paho.client.mqttv3.MqttException;
+
 public class MainActivity extends FragmentActivity {
 
     private ServiceConnection serviceConnection;
@@ -26,13 +28,18 @@ public class MainActivity extends FragmentActivity {
                     .commit();
         }
 
-        serviceConnection = new ServiceConnection(this, "ServiceTracker");
+        serviceConnection = new ServiceConnection(this, "ServiceTracker") {
+            @Override
+            public void attachListener() {
+                super.attachListener();
+            }
+        };
 
     }
 
     @Override
     protected void onDestroy() {
-        serviceConnection.unbind(this);
+        unbindService(serviceConnection);
         super.onDestroy();
     }
 
