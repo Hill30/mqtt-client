@@ -31,9 +31,9 @@ public class Service extends android.app.Service {
             connection = new Connection(
                     connectionThread.getLooper(),
                     this,
-                    prefs.getString(BROKER_URL, ""),
-                    prefs.getString(USER_NAME, ""),
-                    prefs.getString(PASSWORD, "")
+                    prefs.getString(BROKER_URL, "tcp://10.0.2.2:1883"),
+                    prefs.getString(USER_NAME, "userName"),
+                    prefs.getString(PASSWORD, "password")
             ) {
 
                 @Override
@@ -51,7 +51,7 @@ public class Service extends android.app.Service {
 
     @Override
     public IBinder onBind(final Intent intent) {
-        return new ConnectionBinder(connection, intent.getCharSequenceArrayExtra(TOPIC_NAME).toString());
+        return new ConnectionBinder(connection, intent.getStringExtra(TOPIC_NAME));
     }
 
     public void registerReceiver(ConnectionBinder connectionBinder) {
