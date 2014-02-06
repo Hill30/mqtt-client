@@ -32,7 +32,7 @@ public class ServiceConnection implements android.content.ServiceConnection {
 
     @Override
     public void onServiceDisconnected(ComponentName name) {
-
+        // todo: unbind?
     }
 
     public void listener(MessageListener<String> l) {
@@ -40,5 +40,13 @@ public class ServiceConnection implements android.content.ServiceConnection {
     }
 
     public void attachListener() {}
+
+    public void send(String message) {
+        try {
+            connectionBinder.send(message);
+        } catch (MqttException e) {
+            e.printStackTrace();
+        }
+    }
 
 }

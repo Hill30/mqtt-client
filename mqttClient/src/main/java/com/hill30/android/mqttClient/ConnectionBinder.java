@@ -10,12 +10,16 @@ import org.eclipse.paho.client.mqttv3.MqttException;
  */
 public class ConnectionBinder extends Binder {
     private final Connection connection;
+    private final String inboundTopic;
+    private final String outboundTopic;
     private String topic;
     private MessageListener<String> messageListener;
 
     public ConnectionBinder(Connection connection, Intent intent) {
         this.connection = connection;
-        this.topic = intent.getStringExtra(Service.TOPIC_NAME);
+        topic = intent.getStringExtra(Service.TOPIC_NAME);
+        inboundTopic = topic + ".Inbound.user";
+        outboundTopic = topic + ".Outbound";
     }
 
 //    @Override
@@ -26,13 +30,17 @@ public class ConnectionBinder extends Binder {
 //    @Override
     public void connect() throws MqttException {
         connection.register(this);
-        connection.connect(topic);
+        connection.connect(inboundTopic);
     }
 
 //    @Override
     public void onMessageReceived(String message) {
         if (messageListener != null)
             messageListener.onMessageArrived(message);
+    }
+
+    public void send(String message) throws MqttException {
+        connection.send(outboundTopic, message);
     }
 
     public void listener(MessageListener<String> l) {

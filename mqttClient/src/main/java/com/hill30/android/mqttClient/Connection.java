@@ -61,20 +61,20 @@ public abstract class Connection extends Handler
 
     public abstract void onMessageReceived(String topic, String message);
 
-    public void subscribe(String topic) {
-        final String inboundTopic = topic + ".inbound.user";
+    public void subscribe(final String topic) {
+
         try {
-            mqttClient.subscribe(inboundTopic, 2, // QoS = EXACTLY_ONCE
+            mqttClient.subscribe(topic, 2, // QoS = EXACTLY_ONCE
                     null,
                     new IMqttActionListener() {
                         @Override
                         public void onSuccess(IMqttToken iMqttToken) {
-                            Log.d(TAG, "successfully subscribed to " + inboundTopic);
+                            Log.d(TAG, "successfully subscribed to " + topic);
                         }
 
                         @Override
                         public void onFailure(IMqttToken iMqttToken, Throwable throwable) {
-                            Log.d(TAG, "subscribe to " + inboundTopic + " failed: " + throwable.toString());
+                            Log.d(TAG, "subscribe to " + topic + " failed: " + throwable.toString());
                         }
                     });
         } catch (MqttException e) {
@@ -112,5 +112,9 @@ public abstract class Connection extends Handler
 
     public void unRegister(ConnectionBinder connectionBinder) {
         service.unregisterReceiver(connectionBinder);
+    }
+
+    public void send(String outboundTopic, String message) throws MqttException {
+        mqttClient.publish(outboundTopic, message.getBytes(), 2, true);
     }
 }
