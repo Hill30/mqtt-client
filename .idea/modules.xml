@@ -3,6 +3,7 @@
   <component name="ProjectModuleManager">
     <modules>
       <module fileurl="file://$PROJECT_DIR$/ServiceTracker.iml" filepath="$PROJECT_DIR$/ServiceTracker.iml" />
+      <module fileurl="file://$PROJECT_DIR$/mqtt-client.iml" filepath="$PROJECT_DIR$/mqtt-client.iml" />
       <module fileurl="file://$PROJECT_DIR$/mqttClient/mqttClient.iml" filepath="$PROJECT_DIR$/mqttClient/mqttClient.iml" />
       <module fileurl="file://$PROJECT_DIR$/serviceTracker/serviceTracker.iml" filepath="$PROJECT_DIR$/serviceTracker/serviceTracker.iml" />
     </modules>
