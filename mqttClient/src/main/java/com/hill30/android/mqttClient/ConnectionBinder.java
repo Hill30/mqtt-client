@@ -2,7 +2,6 @@ package com.hill30.android.mqttClient;
 
 import android.content.Intent;
 import android.os.Binder;
-import android.os.RemoteException;
 
 import org.eclipse.paho.client.mqttv3.MqttException;
 
@@ -12,6 +11,7 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 public class ConnectionBinder extends Binder {
     private final Connection connection;
     private String topic;
+    private MessageListener<String> messageListener;
 
     public ConnectionBinder(Connection connection, Intent intent) {
         this.connection = connection;
@@ -31,6 +31,11 @@ public class ConnectionBinder extends Binder {
 
 //    @Override
     public void onMessageReceived(String message) {
+        if (messageListener != null)
+            messageListener.onMessageArrived(message);
+    }
 
+    public void listener(MessageListener<String> l) {
+        messageListener = l;
     }
 }

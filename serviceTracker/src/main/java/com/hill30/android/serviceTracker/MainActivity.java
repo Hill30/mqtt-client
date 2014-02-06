@@ -3,15 +3,15 @@ package com.hill30.android.serviceTracker;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentActivity;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import com.hill30.android.mqttClient.MessageListener;
 import com.hill30.android.mqttClient.ServiceConnection;
-
-import org.eclipse.paho.client.mqttv3.MqttException;
 
 public class MainActivity extends FragmentActivity {
 
@@ -31,7 +31,12 @@ public class MainActivity extends FragmentActivity {
         serviceConnection = new ServiceConnection(this, "ServiceTracker") {
             @Override
             public void attachListener() {
-                super.attachListener();
+                listener(new MessageListener<String>() {
+                    @Override
+                    public void onMessageArrived(String message) {
+                        Log.d("*****", "received " + message);
+                    }
+                });
             }
         };
 
@@ -57,9 +62,7 @@ public class MainActivity extends FragmentActivity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            return true;
-        }
+        if (id == R.id.action_settings) return true;
         return super.onOptionsItemSelected(item);
     }
 

@@ -4,7 +4,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
-import android.util.Log;
 
 import org.eclipse.paho.client.mqttv3.MqttException;
 
@@ -34,6 +33,10 @@ public class ServiceConnection implements android.content.ServiceConnection {
     @Override
     public void onServiceDisconnected(ComponentName name) {
 
+    }
+
+    public void listener(MessageListener<String> l) {
+        connectionBinder.listener(l);
     }
 
     public void attachListener() {}
