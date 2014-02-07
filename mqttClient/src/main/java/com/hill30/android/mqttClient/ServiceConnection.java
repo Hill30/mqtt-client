@@ -18,6 +18,7 @@ public class ServiceConnection implements android.content.ServiceConnection {
     }
 
     public ServiceConnection(Context context, String topic) {
+        // todo: validate topic for illegal characters
         context.bindService(
                 new Intent(context, Service.class).putExtra(Service.TOPIC_NAME, topic),
                 this, Context.BIND_AUTO_CREATE);
@@ -36,7 +37,7 @@ public class ServiceConnection implements android.content.ServiceConnection {
 
     @Override
     public void onServiceDisconnected(ComponentName name) {
-        // todo: unbind?
+        connectionBinder.disconnectBinder();
     }
 
     public void listener(MessageListener<String> l) {
@@ -46,11 +47,7 @@ public class ServiceConnection implements android.content.ServiceConnection {
     public void attachListener() {}
 
     public void send(String message) {
-        try {
-            connectionBinder.send(message);
-        } catch (MqttException e) {
-            e.printStackTrace();
-        }
+        connectionBinder.send(message);
     }
 
 }

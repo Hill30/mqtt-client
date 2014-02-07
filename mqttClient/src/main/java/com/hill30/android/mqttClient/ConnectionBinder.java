@@ -31,11 +31,15 @@ public class ConnectionBinder extends Binder {
             messageListener.onMessageArrived(message);
     }
 
-    public void send(String message) throws MqttException {
+    public void send(String message) {
         connection.send(outboundTopic, message);
     }
 
     public void listener(ServiceConnection.MessageListener<String> listener) {
         messageListener = listener;
+    }
+
+    public void disconnectBinder() {
+        connection.unregisterSubscriber(inboundTopic);
     }
 }

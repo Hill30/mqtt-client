@@ -26,10 +26,12 @@ public class Connection extends Handler
     private final Service service;
     private MqttAsyncClient mqttClient;
     private HashMap<String, ConnectionBinder> recipients = new HashMap<String, ConnectionBinder>();
+    private MessageStash stash;
 
     public Connection(Looper looper, Service service, String brokerUrl, String userName, String password) throws MqttException {
         super(looper);
         this.service = service;
+        stash = new MessageStash(service.getApplicationContext().getFilesDir().getPath());
 
         connectionOptions = new MqttConnectOptions();
         connectionOptions.setCleanSession(false);
@@ -95,6 +97,7 @@ public class Connection extends Handler
                     @Override
                     public void onSuccess(IMqttToken asyncActionToken) {
                         Log.d(TAG, "connected");
+                        // unstash and send stashed messages
                         subscribe(topic);
                     }
 
@@ -113,11 +116,22 @@ public class Connection extends Handler
         recipients.put(topic, binder);
     }
 
-    public void unregister(String topic) {
+    public void unregisterSubscriber(String topic) {
         recipients.remove(topic);
     }
 
-    public void send(String topic, String message) throws MqttException {
-        mqttClient.publish(topic, message.getBytes(), 2, true);
+    public void send(String topic, String message) {
+        try {
+            mqttClient.publish(topic, message.getBytes(), 2, true);
+        } catch (MqttException e) {
+            switch (e.getReasonCode()) {
+                case MqttException.REASON_CODE_CLIENT_NOT_CONNECTED:
+                    stash.put(topic, message);   // stash it for when the connection comes online;
+                    break;
+                default:
+                    e.printStackTrace();
+                    break;
+            }
+        }
     }
 }

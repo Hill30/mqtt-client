@@ -4,6 +4,8 @@
       <root url="jar://$PROJECT_DIR$/mqttClient/libs/mqtt-client-0.4.0.jar!/" />
     </CLASSES>
     <JAVADOC />
-    <SOURCES />
+    <SOURCES>
+      <root url="jar://$PROJECT_DIR$/mqttClient/libs/mqtt-client-0.4.0-sources.jar!/" />
+    </SOURCES>
   </library>
 </component>

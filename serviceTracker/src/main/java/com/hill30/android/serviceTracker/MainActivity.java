@@ -68,7 +68,7 @@ public class MainActivity extends FragmentActivity {
     /**
      * A placeholder fragment containing a simple view.
      */
-    public static class PlaceholderFragment extends Fragment {
+    public class PlaceholderFragment extends Fragment {
 
         public PlaceholderFragment() {
         }
@@ -76,7 +76,17 @@ public class MainActivity extends FragmentActivity {
         @Override
         public View onCreateView(LayoutInflater inflater, ViewGroup container,
                 Bundle savedInstanceState) {
-            return inflater.inflate(R.layout.fragment_main, container, false);
+            View view = inflater.inflate(R.layout.fragment_main, container, false);
+
+            view.findViewById(R.id.send).setOnClickListener(new View.OnClickListener() {
+                @Override
+                public void onClick(View view) {
+                    serviceConnection.send("something");
+                }
+            });
+
+            return view;
+
         }
     }
 
