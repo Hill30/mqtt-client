@@ -8,6 +8,8 @@ import java.util.List;
  */
 public class MessageStash {
 
+    // todo: implement stash over file system
+
     private List<Message> stash = new LinkedList<Message>();
 
     public Iterable<Message> get() {

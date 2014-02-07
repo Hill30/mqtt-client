@@ -2,11 +2,13 @@ package com.hill30.android.mqttClient;
 
 import android.content.Intent;
 import android.content.SharedPreferences;
-import android.os.*;
+import android.os.HandlerThread;
+import android.os.IBinder;
 
 import org.eclipse.paho.client.mqttv3.MqttException;
 
-import java.util.HashMap;
+import java.util.Timer;
+import java.util.TimerTask;
 
 /**
  * Created by michaelfeingold on 2/5/14.
@@ -19,6 +21,7 @@ public class Service extends android.app.Service {
     public static final String TOPIC_NAME = "com.hill30.android.mqttClient.topic-name";
 
     private Connection connection;
+    private Timer reconnectTimer = new Timer();
 
     @Override
     public void onCreate() {
@@ -37,6 +40,20 @@ public class Service extends android.app.Service {
         } catch (MqttException e) {
             e.printStackTrace();
         }
+    }
+
+    public void reconnect() {
+        // todo: do something smarter about reconnect attempts
+        reconnectTimer.schedule(new TimerTask() {
+            @Override
+            public void run() {
+                try {
+                    connection.connectIfNecessary();
+                } catch (MqttException e) {
+                    e.printStackTrace();
+                }
+            }
+        }, 5000);
     }
 
     @Override

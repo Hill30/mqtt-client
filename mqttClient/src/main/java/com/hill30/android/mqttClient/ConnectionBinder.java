@@ -12,7 +12,7 @@ public class ConnectionBinder extends Binder {
     private final Connection connection;
     private final String inboundTopic;
     private final String outboundTopic;
-    private ServiceConnection.MessageListener<String> messageListener;
+    private ServiceConnection.MessageListener messageListener;
 
     public ConnectionBinder(Connection connection, Intent intent) {
         this.connection = connection;
@@ -34,7 +34,7 @@ public class ConnectionBinder extends Binder {
         connection.send(outboundTopic, message);
     }
 
-    public void listener(ServiceConnection.MessageListener<String> listener) {
+    public void listener(ServiceConnection.MessageListener listener) {
         messageListener = listener;
     }
 

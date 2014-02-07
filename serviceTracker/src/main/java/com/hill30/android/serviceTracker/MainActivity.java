@@ -27,17 +27,13 @@ public class MainActivity extends FragmentActivity {
                     .commit();
         }
 
-        serviceConnection = new ServiceConnection(this, "ServiceTracker") {
-            @Override
-            public void attachListener() {
-                listener(new MessageListener<String>() {
-                    @Override
-                    public void onMessageArrived(String message) {
-                        Log.d("*****", "received " + message);
-                    }
-                });
-            }
-        };
+        serviceConnection = new ServiceConnection(this, "ServiceTracker",
+            new ServiceConnection.MessageListener() {
+                @Override
+                public void onMessageArrived(String message) {
+                    Log.d("*****", "received " + message);
+                }
+            });
 
     }
 

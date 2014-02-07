@@ -27,10 +27,12 @@ public class Connection extends Handler
     private final MqttAsyncClient mqttClient;
     private HashMap<String, ConnectionBinder> recipients = new HashMap<String, ConnectionBinder>();
     private MessageStash stash;
+    private Service service;
 
-    public Connection(Looper looper, Service service, String brokerUrl, String userName, String password) throws MqttException {
+    public Connection(Looper looper, final Service service, String brokerUrl, String userName, String password) throws MqttException {
         super(looper);
-        //noinspection ConstantConditions
+        this.service = service;
+
         stash = new MessageStash(service.getApplicationContext().getFilesDir().getPath());
 
         connectionOptions = new MqttConnectOptions();
@@ -48,7 +50,7 @@ public class Connection extends Handler
             @Override
             public void connectionLost(Throwable cause) {
                 Log.d(TAG, "connection lost cause: " + cause.toString());
-                reconnect();
+                service.reconnect();
             }
 
             @Override
@@ -65,26 +67,6 @@ public class Connection extends Handler
             }
         });
 
-    }
-
-    private void reconnect() {
-        new Thread(new Runnable() {
-            @Override
-            public void run() {
-                try {
-                    Thread.sleep(1000);
-                } catch (InterruptedException e) {
-                    e.printStackTrace();
-                }
-
-                try {
-                    Log.d(TAG, "reconnecting");
-                    connectIfNecessary();
-                } catch (MqttException e) {
-                    e.printStackTrace();
-                }
-            }
-        }).start();
     }
 
     private void subscribe(final String topic) {
@@ -137,7 +119,7 @@ public class Connection extends Handler
                 @Override
                 public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
                     Log.d(TAG, "connect failed :" + exception.toString());
-                    reconnect();
+                    service.reconnect();
                 }
             });
             return false;
