@@ -4,6 +4,7 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.os.HandlerThread;
 import android.os.IBinder;
+import android.util.Log;
 
 import org.eclipse.paho.client.mqttv3.MqttException;
 
@@ -28,6 +29,8 @@ public class Service extends android.app.Service {
         HandlerThread connectionThread = new HandlerThread("mqttConnection", android.os.Process.THREAD_PRIORITY_BACKGROUND);
         connectionThread.start();
 
+        // todo: come up with a better way to receive broker url and credentials
+        // todo: should the below be run on the connectionThread?
         SharedPreferences prefs = getSharedPreferences("MqttConnection", MODE_PRIVATE);
         try {
             connection = new Connection(
@@ -44,6 +47,7 @@ public class Service extends android.app.Service {
 
     public void reconnect() {
         // todo: do something smarter about reconnect attempts
+        Log.d(Connection.TAG, "reconnecting in 5 sec.");
         reconnectTimer.schedule(new TimerTask() {
             @Override
             public void run() {

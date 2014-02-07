@@ -20,7 +20,7 @@ public class ServiceConnection implements android.content.ServiceConnection {
 
     public ServiceConnection(Context context, String topic, MessageListener messageListener) {
         this.messageListener = messageListener;
-        // todo: validate topic for illegal characters
+        // todo: validate topic for illegal characters - it is important for matching incoming message to the recipients (see Connection.java)
         context.bindService(
                 new Intent(context, Service.class).putExtra(Service.TOPIC_NAME, topic),
                 this, Context.BIND_AUTO_CREATE);

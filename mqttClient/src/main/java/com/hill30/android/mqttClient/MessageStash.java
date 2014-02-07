@@ -8,7 +8,7 @@ import java.util.List;
  */
 public class MessageStash {
 
-    // todo: implement stash over file system
+    // todo: implement stash over file system. Message to be resubmitted preserving their order
 
     private List<Message> stash = new LinkedList<Message>();
 

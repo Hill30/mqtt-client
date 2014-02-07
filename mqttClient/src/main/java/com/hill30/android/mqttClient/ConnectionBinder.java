@@ -15,6 +15,7 @@ public class ConnectionBinder extends Binder {
     private ServiceConnection.MessageListener messageListener;
 
     public ConnectionBinder(Connection connection, Intent intent) {
+        // todo: in the inbound topic replace 'user' with the real user name
         this.connection = connection;
         String topic = intent.getStringExtra(Service.TOPIC_NAME);
         inboundTopic = topic + "/Inbound/user";

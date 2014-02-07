@@ -29,8 +29,11 @@ public class Connection extends Handler
     private MessageStash stash;
     private Service service;
 
+    // todo: exception processing/reporting. Also applies to all other places with printStackTrace
+
     public Connection(Looper looper, final Service service, String brokerUrl, String userName, String password) throws MqttException {
         super(looper);
+
         this.service = service;
 
         stash = new MessageStash(service.getApplicationContext().getFilesDir().getPath());
@@ -118,6 +121,7 @@ public class Connection extends Handler
 
                 @Override
                 public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
+                    // todo: reconnect only on recoverable exceptions
                     Log.d(TAG, "connect failed :" + exception.toString());
                     service.reconnect();
                 }
@@ -136,6 +140,7 @@ public class Connection extends Handler
             Log.d(TAG, "published :" + message);
         } catch (MqttException e) {
             switch (e.getReasonCode()) {
+                // todo: double check this is the only recoverable failure
                 case MqttException.REASON_CODE_CLIENT_NOT_CONNECTED:
                     stash.put(topic, message);   // stash it for when the connection comes online;
                     break;
