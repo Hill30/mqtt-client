@@ -1,8 +1,6 @@
 package com.hill30.android.mqttClient;
 
-import android.content.Intent;
 import android.os.Handler;
-import android.os.IBinder;
 import android.os.Looper;
 import android.util.Log;
 
@@ -26,14 +24,13 @@ public class Connection extends Handler
 {
     public static final String TAG = "MQTT Connection";
     private final MqttConnectOptions connectionOptions;
-    private final Service service;
-    private MqttAsyncClient mqttClient;
+    private final MqttAsyncClient mqttClient;
     private HashMap<String, ConnectionBinder> recipients = new HashMap<String, ConnectionBinder>();
     private MessageStash stash;
 
     public Connection(Looper looper, Service service, String brokerUrl, String userName, String password) throws MqttException {
         super(looper);
-        this.service = service;
+        //noinspection ConstantConditions
         stash = new MessageStash(service.getApplicationContext().getFilesDir().getPath());
 
         connectionOptions = new MqttConnectOptions();
@@ -50,7 +47,8 @@ public class Connection extends Handler
         mqttClient.setCallback(new MqttCallback() {
             @Override
             public void connectionLost(Throwable cause) {
-                Log.d(TAG, "connection lost cause: " + cause.getMessage());
+                Log.d(TAG, "connection lost cause: " + cause.toString());
+                reconnect();
             }
 
             @Override
@@ -69,9 +67,35 @@ public class Connection extends Handler
 
     }
 
+    private void reconnect() {
+        new Thread(new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    Thread.sleep(1000);
+                } catch (InterruptedException e) {
+                    e.printStackTrace();
+                }
+
+                try {
+                    Log.d(TAG, "reconnecting");
+                    connectIfNecessary();
+                } catch (MqttException e) {
+                    e.printStackTrace();
+                }
+            }
+        }).start();
+    }
+
     private void subscribe(final String topic) {
 
         try {
+
+            for (MessageStash.Message message : stash.get()) {
+                send(message.topic, message.body);
+                message.commit();
+            }
+
             mqttClient.subscribe(topic, 2, // QoS = EXACTLY_ONCE
                     null,
                     new IMqttActionListener() {
@@ -85,52 +109,38 @@ public class Connection extends Handler
                             Log.d(TAG, "subscribe to " + topic + " failed: " + throwable.toString());
                         }
                     });
-            // unstash and send stashed messages
         } catch (MqttException e) {
             e.printStackTrace();
         }
     }
 
     public void connect(final ConnectionBinder connectionBinder, final String topic) throws MqttException {
-
-        boolean connected;
-        synchronized (mqttClient) {
-            connected = mqttClient.isConnected();
-            if (!connected)
-                mqttClient.connect(connectionOptions, null, new IMqttActionListener() {
-                    @Override
-                    public void onSuccess(IMqttToken asyncActionToken) {
-                        Log.d(TAG, "connected");
-                        recipients.put(topic, connectionBinder);
-                        subscribe(topic);
-                    }
-
-                    @Override
-                    public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
-                        Log.d(TAG, "connect failed :" + exception.toString());
-                    }
-                });
-        }
-        if (connected)
+        recipients.put(topic, connectionBinder);
+        if (connectIfNecessary())
             subscribe(topic);
     }
 
-    public void reconnect() throws MqttException {
+    public boolean connectIfNecessary() throws MqttException {
 
         synchronized (mqttClient) {
+            boolean connected = mqttClient.isConnected();
+            if (connected)
+                return true;
             mqttClient.connect(connectionOptions, null, new IMqttActionListener() {
                 @Override
                 public void onSuccess(IMqttToken asyncActionToken) {
-                    Log.d(TAG, "reconnected");
+                    Log.d(TAG, "connected");
                     for (Map.Entry<String, ConnectionBinder> binder : recipients.entrySet())
                         subscribe(binder.getKey());
                 }
 
                 @Override
                 public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
-                    Log.d(TAG, "reconnect failed :" + exception.toString());
+                    Log.d(TAG, "connect failed :" + exception.toString());
+                    reconnect();
                 }
             });
+            return false;
         }
     }
 
@@ -141,13 +151,14 @@ public class Connection extends Handler
     public void send(String topic, String message) {
         try {
             mqttClient.publish(topic, message.getBytes(), 2, true);
+            Log.d(TAG, "published :" + message);
         } catch (MqttException e) {
             switch (e.getReasonCode()) {
                 case MqttException.REASON_CODE_CLIENT_NOT_CONNECTED:
                     stash.put(topic, message);   // stash it for when the connection comes online;
                     break;
                 default:
-                    e.printStackTrace();
+                    Log.d(TAG, "publish of " + message + " failed :" + e.toString());
                     break;
             }
         }
