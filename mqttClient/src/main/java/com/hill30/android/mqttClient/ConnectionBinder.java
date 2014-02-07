@@ -22,8 +22,7 @@ public class ConnectionBinder extends Binder {
     }
 
     public void connect() throws MqttException {
-        connection.registerSubscriber(inboundTopic, this);
-        connection.connect(inboundTopic);
+        connection.connect(this, inboundTopic);
     }
 
     public void onMessageReceived(String message) {
