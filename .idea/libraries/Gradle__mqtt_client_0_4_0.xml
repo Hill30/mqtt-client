@@ -1,9 +1,0 @@
-<component name="libraryTable">
-  <library name="Gradle: mqtt-client-0.4.0">
-    <CLASSES>
-      <root url="jar://$PROJECT_DIR$/serviceTracker/build/exploded-bundles/ServiceTrackerMqttClientUnspecified.aar/libs/mqtt-client-0.4.0.jar!/" />
-    </CLASSES>
-    <JAVADOC />
-    <SOURCES />
-  </library>
-</component>

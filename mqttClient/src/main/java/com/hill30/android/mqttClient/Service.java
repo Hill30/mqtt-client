@@ -16,13 +16,19 @@ import java.util.TimerTask;
  */
 public class Service extends android.app.Service {
 
+    public static final String TAG = "MQTT Service";
     public static final String BROKER_URL = "com.hill30.android.mqttClient.broker-url";
     public static final String USER_NAME = "com.hill30.android.mqttClient.user-name";
     public static final String PASSWORD = "com.hill30.android.mqttClient.password";
     public static final String TOPIC_NAME = "com.hill30.android.mqttClient.topic-name";
+    public static final String CONNECTION_RETRY_INTERVAL = "com.hill30.android.mqttClient.connection_retry_interval";
+    public static final String IS_SSL = "com.hill30.android.mqttClient.is_ssl";
 
     private Connection connection;
     private Timer reconnectTimer = new Timer();
+
+    private int retry_interval = 5000; //milliseconds
+    private boolean isSSL = false;
 
     @Override
     public void onCreate() {
@@ -45,9 +51,11 @@ public class Service extends android.app.Service {
         }
     }
 
-    public void reconnect() {
-        // todo: do something smarter about reconnect attempts
-        Log.d(Connection.TAG, "reconnecting in 5 sec.");
+    public void onConnectFailure() {
+        // todo: do something smarter about onConnectFailure attempts
+        Log.e(TAG, "received call onConnectFailure.");
+
+        Log.e(TAG, "reconnecting in 5 sec.");
         reconnectTimer.schedule(new TimerTask() {
             @Override
             public void run() {
@@ -57,7 +65,7 @@ public class Service extends android.app.Service {
                     e.printStackTrace();
                 }
             }
-        }, 5000);
+        }, retry_interval);
     }
 
     @Override
