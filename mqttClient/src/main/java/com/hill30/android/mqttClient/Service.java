@@ -35,6 +35,9 @@ public class Service extends android.app.Service {
     private int retry_interval = 5000; //milliseconds
     private boolean isSSL = false;
 
+    private BroadcastReceiver networkConnectedBroadcastReceiver;
+    private BroadcastReceiver networkDisconnectedBroadcastReceiver;
+
     @Override
     public void onCreate() {
         HandlerThread connectionThread = new HandlerThread("mqttConnection", android.os.Process.THREAD_PRIORITY_BACKGROUND);
@@ -55,20 +58,27 @@ public class Service extends android.app.Service {
             e.printStackTrace();
         }
 
-        registerReceiver(new BroadcastReceiver() {
+        registerReceiver(networkConnectedBroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 Log.d(LOG_TAG, "Network connected");
             }
         }, new IntentFilter(NetworkStatusReceiver.INTENT_NETWORK_CONNECTED));
 
-        registerReceiver(new BroadcastReceiver() {
+        registerReceiver(networkDisconnectedBroadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 Log.d(LOG_TAG, "Network disconnected");
             }
         }, new IntentFilter(NetworkStatusReceiver.INTENT_NETWORK_DISCONNECTED));
 
+    }
+
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        unregisterReceiver(networkConnectedBroadcastReceiver);
+        unregisterReceiver(networkDisconnectedBroadcastReceiver);
     }
 
     public void onConnectFailure() {
