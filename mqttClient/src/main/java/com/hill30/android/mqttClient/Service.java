@@ -1,6 +1,9 @@
 package com.hill30.android.mqttClient;
 
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.SharedPreferences;
 import android.os.HandlerThread;
 import android.os.IBinder;
@@ -15,6 +18,8 @@ import java.util.TimerTask;
  * Created by michaelfeingold on 2/5/14.
  */
 public class Service extends android.app.Service {
+
+    private static final String LOG_TAG = Service.class.getName();
 
     public static final String TAG = "MQTT Service";
     public static final String BROKER_URL = "com.hill30.android.mqttClient.broker-url";
@@ -49,6 +54,21 @@ public class Service extends android.app.Service {
         } catch (MqttException e) {
             e.printStackTrace();
         }
+
+        registerReceiver(new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Log.d(LOG_TAG, "Network connected");
+            }
+        }, new IntentFilter(NetworkStatusReceiver.INTENT_NETWORK_CONNECTED));
+
+        registerReceiver(new BroadcastReceiver() {
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                Log.d(LOG_TAG, "Network disconnected");
+            }
+        }, new IntentFilter(NetworkStatusReceiver.INTENT_NETWORK_DISCONNECTED));
+
     }
 
     public void onConnectFailure() {
