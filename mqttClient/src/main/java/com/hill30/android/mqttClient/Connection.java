@@ -28,6 +28,7 @@ public class Connection extends Handler
     private HashMap<String, ConnectionBinder> recipients = new HashMap<String, ConnectionBinder>();
     private MessageStash stash;
     private Service service;
+    private String userName;
     private boolean connecting;
 
     // todo: exception processing/reporting. Also applies to all other places with printStackTrace
@@ -36,6 +37,7 @@ public class Connection extends Handler
         super(looper);
 
         this.service = service;
+        this.userName = userName;
 
         stash = new MessageStash(service.getApplicationContext().getFilesDir().getPath());
 
@@ -59,7 +61,7 @@ public class Connection extends Handler
         mqttClient.setCallback(new MqttCallback() {
             @Override
             public void connectionLost(Throwable cause) {
-                Log.e(TAG, "connection lost cause: " + cause.toString());
+                Log.e(TAG, "Connection lost. Cause: " + cause.toString());
                 service.onConnectFailure();
             }
 
@@ -68,12 +70,12 @@ public class Connection extends Handler
                 ConnectionBinder recipient = recipients.get(topic);
                 if (recipient != null)
                     recipient.onMessageReceived(message.toString());
-                Log.d(TAG, "message " + message + " received");
+                Log.d(TAG, "Message " + message + " received");
             }
 
             @Override
             public void deliveryComplete(IMqttDeliveryToken token) {
-                Log.d(TAG, "message delivery complete");
+                Log.d(TAG, "Message delivery complete");
             }
         });
 
@@ -94,12 +96,12 @@ public class Connection extends Handler
                     new IMqttActionListener() {
                         @Override
                         public void onSuccess(IMqttToken iMqttToken) {
-                            Log.d(TAG, "successfully subscribed to " + topic);
+                            Log.d(TAG, "Successfully subscribed to " + topic);
                         }
 
                         @Override
                         public void onFailure(IMqttToken iMqttToken, Throwable throwable) {
-                            Log.e(TAG, "subscribe to " + topic + " failed: " + throwable.toString());
+                            Log.e(TAG, "Subscribe to " + topic + " failed: " + throwable.toString());
                         }
                     });
         } catch (MqttException e) {
@@ -119,7 +121,7 @@ public class Connection extends Handler
             if(mqttClient.isConnected()) // connection is already active - we can subscribe to the topic synchronously (see connect method)
                 return true;
 
-            if (connecting) // connecting was earlier initiated from a different thread - just let things take their caurse
+            if (connecting) // connecting was earlier initiated from a different thread - just let things take their course
                 return false;
             connecting = true;
 
@@ -136,7 +138,7 @@ public class Connection extends Handler
                 public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
                     connecting = false;
                     // todo: onConnectFailure only on recoverable exceptions
-                    Log.e(TAG, "connect failed :" + exception.toString());
+                    Log.e(TAG, "Failed to connect :" + exception.toString());
                     service.onConnectFailure();
                 }
             });
@@ -159,10 +161,17 @@ public class Connection extends Handler
                     stash.put(topic, message);   // stash it for when the connection comes online;
                     break;
                 default:
-                    Log.d(TAG, "publish of " + message + " failed :" + e.toString());
+                    Log.d(TAG, "Publish of " + message + " failed :" + e.toString());
                     break;
             }
         }
     }
 
+    public String getInboundTopic(String topic) {
+        return topic + "/Inbound/" + userName;
+    }
+
+    public String getOutboundTopic(String topic) {
+        return topic + "/Outbound";
+    }
 }
