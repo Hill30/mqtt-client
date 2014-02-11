@@ -8,7 +8,10 @@
       <excludeFolder url="file://$MODULE_DIR$/.gradle" />
       <excludeFolder url="file://$MODULE_DIR$/build" />
     </content>
+<<<<<<< HEAD
     <orderEntry type="inheritedJdk" />
+=======
+>>>>>>> origin/HEAD
     <orderEntry type="sourceFolder" forTests="false" />
   </component>
 </module>

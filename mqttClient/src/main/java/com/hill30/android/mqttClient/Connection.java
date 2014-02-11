@@ -43,17 +43,23 @@ public class Connection extends Handler
         connectionOptions.setUserName(userName);
         connectionOptions.setPassword(password.toCharArray());
 
+        String clientId = userName; //TODO: decide on client id  //MqttAsyncClient.generateClientId();
+        String appPath = service.getApplicationContext().getFilesDir().getPath();
+
         mqttClient = new MqttAsyncClient(
                 brokerUrl,
-                MqttAsyncClient.generateClientId(),
-                new MqttDefaultFilePersistence(service.getApplicationContext().getFilesDir().getPath())
+                clientId,
+                new MqttDefaultFilePersistence(appPath)
         );
+        Log.d(TAG, "Broker URL: " + brokerUrl);
+        Log.d(TAG, "Connection clientId: " + clientId);
+        Log.d(TAG, "Application path: " + appPath);
 
         mqttClient.setCallback(new MqttCallback() {
             @Override
             public void connectionLost(Throwable cause) {
-                Log.d(TAG, "connection lost cause: " + cause.toString());
-                service.reconnect();
+                Log.e(TAG, "connection lost cause: " + cause.toString());
+                service.onConnectFailure();
             }
 
             @Override
@@ -76,6 +82,7 @@ public class Connection extends Handler
 
         try {
 
+            //TODO: should this move to after subscribe-success?
             for (MessageStash.Message message : stash.get()) {
                 send(message.topic, message.body);
                 message.commit();
@@ -91,7 +98,7 @@ public class Connection extends Handler
 
                         @Override
                         public void onFailure(IMqttToken iMqttToken, Throwable throwable) {
-                            Log.d(TAG, "subscribe to " + topic + " failed: " + throwable.toString());
+                            Log.e(TAG, "subscribe to " + topic + " failed: " + throwable.toString());
                         }
                     });
         } catch (MqttException e) {
@@ -108,9 +115,9 @@ public class Connection extends Handler
     public boolean connectIfNecessary() throws MqttException {
 
         synchronized (mqttClient) {
-            boolean connected = mqttClient.isConnected();
-            if (connected)
+            if(mqttClient.isConnected())
                 return true;
+
             mqttClient.connect(connectionOptions, null, new IMqttActionListener() {
                 @Override
                 public void onSuccess(IMqttToken asyncActionToken) {
@@ -121,9 +128,9 @@ public class Connection extends Handler
 
                 @Override
                 public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
-                    // todo: reconnect only on recoverable exceptions
-                    Log.d(TAG, "connect failed :" + exception.toString());
-                    service.reconnect();
+                    // todo: onConnectFailure only on recoverable exceptions
+                    Log.e(TAG, "connect failed :" + exception.toString());
+                    service.onConnectFailure();
                 }
             });
             return false;
