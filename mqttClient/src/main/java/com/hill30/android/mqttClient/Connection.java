@@ -28,6 +28,7 @@ public class Connection extends Handler
     private HashMap<String, ConnectionBinder> recipients = new HashMap<String, ConnectionBinder>();
     private MessageStash stash;
     private Service service;
+    private boolean connecting;
 
     // todo: exception processing/reporting. Also applies to all other places with printStackTrace
 
@@ -115,12 +116,17 @@ public class Connection extends Handler
     public boolean connectIfNecessary() throws MqttException {
 
         synchronized (mqttClient) {
-            if(mqttClient.isConnected())
+            if(mqttClient.isConnected()) // connection is already active - we can subscribe to the topic synchronously (see connect method)
                 return true;
+
+            if (connecting) // connecting was earlier initiated from a different thread - just let things take their caurse
+                return false;
+            connecting = true;
 
             mqttClient.connect(connectionOptions, null, new IMqttActionListener() {
                 @Override
                 public void onSuccess(IMqttToken asyncActionToken) {
+                    connecting = false;
                     Log.d(TAG, "connected");
                     for (Map.Entry<String, ConnectionBinder> binder : recipients.entrySet())
                         subscribe(binder.getKey());
@@ -128,6 +134,7 @@ public class Connection extends Handler
 
                 @Override
                 public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
+                    connecting = false;
                     // todo: onConnectFailure only on recoverable exceptions
                     Log.e(TAG, "connect failed :" + exception.toString());
                     service.onConnectFailure();

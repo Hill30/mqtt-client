@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.SharedPreferences;
+import android.net.ConnectivityManager;
 import android.os.HandlerThread;
 import android.os.IBinder;
 import android.util.Log;
@@ -33,10 +34,22 @@ public class Service extends android.app.Service {
     private Timer reconnectTimer = new Timer();
 
     private int retry_interval = 5000; //milliseconds
-    private boolean isSSL = false;
 
-    private BroadcastReceiver networkConnectedBroadcastReceiver;
-    private BroadcastReceiver networkDisconnectedBroadcastReceiver;
+    private BroadcastReceiver networkStatusReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            networkAvailable = !intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, false);
+            if (networkAvailable)
+                try {
+                    connection.connectIfNecessary();
+                } catch (MqttException e) {
+                    e.printStackTrace();
+                }
+        }
+    };
+    private boolean networkAvailable = false;
+
+    private boolean isSSL = false;
 
     @Override
     public void onCreate() {
@@ -58,44 +71,33 @@ public class Service extends android.app.Service {
             e.printStackTrace();
         }
 
-        registerReceiver(networkConnectedBroadcastReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                Log.d(LOG_TAG, "Network connected");
-            }
-        }, new IntentFilter(NetworkStatusReceiver.INTENT_NETWORK_CONNECTED));
-
-        registerReceiver(networkDisconnectedBroadcastReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                Log.d(LOG_TAG, "Network disconnected");
-            }
-        }, new IntentFilter(NetworkStatusReceiver.INTENT_NETWORK_DISCONNECTED));
+        registerReceiver(networkStatusReceiver,new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
-        unregisterReceiver(networkConnectedBroadcastReceiver);
-        unregisterReceiver(networkDisconnectedBroadcastReceiver);
+        unregisterReceiver(networkStatusReceiver);
     }
 
     public void onConnectFailure() {
         // todo: do something smarter about onConnectFailure attempts
-        Log.e(TAG, "received call onConnectFailure.");
-
-        Log.e(TAG, "reconnecting in 5 sec.");
-        reconnectTimer.schedule(new TimerTask() {
-            @Override
-            public void run() {
+        if (networkAvailable) {
+            Log.e(TAG, String.format("Connection failure. Reconnecting in %d sec.", retry_interval/1000));
+            reconnectTimer.schedule(new TimerTask() {
+                @Override
+                public void run() {
                 try {
                     connection.connectIfNecessary();
                 } catch (MqttException e) {
                     e.printStackTrace();
                 }
-            }
-        }, retry_interval);
+                }
+            }, retry_interval);
+        } else
+            Log.e(TAG, "Connection failure. Network unavailable.");
+
     }
 
     @Override
