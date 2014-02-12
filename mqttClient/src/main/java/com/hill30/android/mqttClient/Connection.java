@@ -2,6 +2,7 @@ package com.hill30.android.mqttClient;
 
 import android.os.Handler;
 import android.os.Looper;
+import android.provider.Settings;
 import android.util.Log;
 
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
@@ -46,7 +47,7 @@ public class Connection extends Handler
         connectionOptions.setUserName(userName);
         connectionOptions.setPassword(password.toCharArray());
 
-        String clientId = userName; //TODO: decide on client id  //MqttAsyncClient.generateClientId();
+        String clientId = Settings.Secure.getString(service.getContentResolver(), Settings.Secure.ANDROID_ID);
         String appPath = service.getApplicationContext().getFilesDir().getPath();
 
         mqttClient = new MqttAsyncClient(
