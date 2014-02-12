@@ -24,28 +24,21 @@ import java.util.Map;
 public class Connection extends Handler
 {
     public static final String TAG = "MQTT Connection";
-    private final MqttConnectOptions connectionOptions;
+    private MqttConnectOptions connectionOptions;
     private final MqttAsyncClient mqttClient;
     private HashMap<String, ConnectionBinder> recipients = new HashMap<String, ConnectionBinder>();
     private MessageStash stash;
     private Service service;
-    private String userName;
     private boolean connecting;
 
     // todo: exception processing/reporting. Also applies to all other places with printStackTrace
 
-    public Connection(Looper looper, final Service service, String brokerUrl, String userName, String password) throws MqttException {
+    public Connection(Looper looper, final Service service, String brokerUrl) throws MqttException {
         super(looper);
 
         this.service = service;
-        this.userName = userName;
 
         stash = new MessageStash(service.getApplicationContext().getFilesDir().getPath());
-
-        connectionOptions = new MqttConnectOptions();
-        connectionOptions.setCleanSession(false);
-        connectionOptions.setUserName(userName);
-        connectionOptions.setPassword(password.toCharArray());
 
         String clientId = Settings.Secure.getString(service.getContentResolver(), Settings.Secure.ANDROID_ID);
         String appPath = service.getApplicationContext().getFilesDir().getPath();
@@ -58,6 +51,9 @@ public class Connection extends Handler
         Log.d(TAG, "Broker URL: " + brokerUrl);
         Log.d(TAG, "Connection clientId: " + clientId);
         Log.d(TAG, "Application path: " + appPath);
+
+        connectionOptions = new MqttConnectOptions();
+        connectionOptions.setCleanSession(false);
 
         mqttClient.setCallback(new MqttCallback() {
             @Override
@@ -110,7 +106,11 @@ public class Connection extends Handler
         }
     }
 
-    public void connect(final ConnectionBinder connectionBinder, final String topic) throws MqttException {
+    public void connect(final ConnectionBinder connectionBinder, String userName, String password, final String topic) throws MqttException {
+
+        connectionOptions.setUserName(userName);
+        connectionOptions.setPassword(password.toCharArray());
+
         recipients.put(topic, connectionBinder);
         if (connectIfNecessary())
             subscribe(topic);
@@ -168,11 +168,4 @@ public class Connection extends Handler
         }
     }
 
-    public String getInboundTopic(String topic) {
-        return topic + "/Inbound/" + userName;
-    }
-
-    public String getOutboundTopic(String topic) {
-        return topic + "/Outbound";
-    }
 }

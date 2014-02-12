@@ -27,7 +27,7 @@ public class MainActivity extends FragmentActivity {
                     .commit();
         }
 
-        serviceConnection = new ServiceConnection(this, "ServiceTracker",
+        serviceConnection = new ServiceConnection(this, "userName", "password", "ServiceTracker",
             new ServiceConnection.MessageListener() {
                 @Override
                 public void onMessageArrived(String message) {

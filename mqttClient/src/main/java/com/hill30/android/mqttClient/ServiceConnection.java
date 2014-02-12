@@ -18,11 +18,14 @@ public class ServiceConnection implements android.content.ServiceConnection {
         void onMessageArrived(String message);
     }
 
-    public ServiceConnection(Context context, String topic, MessageListener messageListener) {
+    public ServiceConnection(Context context, String userName, String password, String topic, MessageListener messageListener) {
         this.messageListener = messageListener;
         // todo: validate topic for illegal characters - it is important for matching incoming message to the recipients (see Connection.java)
         context.bindService(
-                new Intent(context, Service.class).putExtra(Service.TOPIC_NAME, topic),
+                new Intent(context, Service.class)
+                        .putExtra(Service.USER_NAME, userName)
+                        .putExtra(Service.PASSWORD, password)
+                        .putExtra(Service.TOPIC_NAME, topic),
                 this, Context.BIND_AUTO_CREATE);
     }
 

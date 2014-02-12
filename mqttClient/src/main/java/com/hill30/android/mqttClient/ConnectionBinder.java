@@ -8,21 +8,33 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 /**
  * Created by michaelfeingold on 2/5/14.
  */
-public class ConnectionBinder extends Binder {
+class ConnectionBinder extends Binder {
     private final Connection connection;
     private final String inboundTopic;
     private final String outboundTopic;
+    private final String userName;
+    private final String password;
     private ServiceConnection.MessageListener messageListener;
 
     public ConnectionBinder(Connection connection, Intent intent) {
         this.connection = connection;
+        userName = intent.getStringExtra(Service.USER_NAME);
+        password = intent.getStringExtra(Service.PASSWORD);
         String topic = intent.getStringExtra(Service.TOPIC_NAME);
-        inboundTopic = connection.getInboundTopic(topic);
-        outboundTopic = connection.getOutboundTopic(topic);
+        inboundTopic = getInboundTopic(topic);
+        outboundTopic = getOutboundTopic(topic);
+    }
+
+    private String getInboundTopic(String topic) {
+        return topic + "/Inbound/" + userName;
+    }
+
+    private String getOutboundTopic(String topic) {
+        return topic + "/Outbound";
     }
 
     public void connect() throws MqttException {
-        connection.connect(this, inboundTopic);
+        connection.connect(this, userName, password, inboundTopic);
     }
 
     public void onMessageReceived(String message) {
