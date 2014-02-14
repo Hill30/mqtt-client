@@ -14,10 +14,12 @@ class ConnectionBinder extends Binder {
     private final String outboundTopic;
     private final String userName;
     private final String password;
+    private final String brokerUrl;
     private ServiceConnection.MessageListener messageListener;
 
     public ConnectionBinder(Connection connection, Intent intent) {
         this.connection = connection;
+        brokerUrl = intent.getStringExtra(Service.BROKER_URL);
         userName = intent.getStringExtra(Service.USER_NAME);
         password = intent.getStringExtra(Service.PASSWORD);
         String topic = intent.getStringExtra(Service.TOPIC_NAME);
@@ -34,7 +36,7 @@ class ConnectionBinder extends Binder {
     }
 
     public void connect() throws MqttException {
-        connection.connect(this, userName, password, inboundTopic);
+        connection.connect(this, brokerUrl, userName, password, inboundTopic);
     }
 
     public void onMessageReceived(String message) {

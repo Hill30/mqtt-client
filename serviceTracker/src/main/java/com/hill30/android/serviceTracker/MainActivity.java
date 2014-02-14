@@ -7,7 +7,7 @@ import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 
-import com.hill30.android.mqttClient.ServiceConnection;
+import com.hill30.android.mqttClient.*;
 
 public class MainActivity extends ActionBarActivity {
 
@@ -23,7 +23,7 @@ public class MainActivity extends ActionBarActivity {
         new ActionBarTab(this, "Native", NativeView.class.getName());
         new ActionBarTab(this, "Web", WebView.class.getName());
 
-        serviceConnection = new ServiceConnection(this, "userName", "password", "ServiceTracker",
+        serviceConnection = new ServiceConnection(this, "tcp://10.0.2.2:1883", "userName", "password", "ServiceTracker",
             new ServiceConnection.MessageListener() {
                 @Override
                 public void onMessageArrived(String message) {

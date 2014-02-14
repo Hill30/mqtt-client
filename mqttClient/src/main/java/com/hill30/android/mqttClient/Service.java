@@ -52,11 +52,7 @@ public class Service extends android.app.Service {
         connectionThread.start();
 
         // todo: should the below be run on the connectionThread?
-        try {
-            connection = new Connection(connectionThread.getLooper(), this, getString(R.string.brokerURL));
-        } catch (MqttException e) {
-            e.printStackTrace();
-        }
+        connection = new Connection(connectionThread.getLooper(), this);
 
         registerReceiver(networkStatusReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
 
