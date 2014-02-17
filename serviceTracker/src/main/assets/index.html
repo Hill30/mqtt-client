@@ -1,0 +1,21 @@
+<html>
+<head>
+    <script type="text/javascript">
+        function loadJSON(){
+            var data = window.javascriptInterface.getJSON();
+            var json = JSON.parse(data);
+            var str = "";
+            for(var k in json) {
+                str += k + " - " + json[k] + "\n";
+            }
+            alert(str);
+        }
+    </script>
+</head>
+<body>
+    <h1> Hello world. </h1>
+    <a href="link_to_somewhere"> Click here to see Web View Client working. </a>
+    <br/>
+    <a href="#" onclick="loadJSON();"> Load JSON. </a>
+</body>
+</html>
