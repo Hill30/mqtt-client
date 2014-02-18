@@ -6,6 +6,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.webkit.ConsoleMessage;
+import android.webkit.JsResult;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -35,15 +37,33 @@ public class WebViewFragment extends Fragment {
         webView = (WebView) view.findViewById(R.id.webView);
         webView.requestFocus();
 
-
         webView.getSettings().setJavaScriptEnabled(true);
 
         webView.setWebChromeClient(new WebChromeClient() {
             public void onProgressChanged(WebView view, int progress) {
             }
 
+            @Override
+            public boolean onConsoleMessage(ConsoleMessage consoleMessage) {
+                Log.d(TAG, "Console: " + consoleMessage.message());
+                return super.onConsoleMessage(consoleMessage);
+            }
+
+            @Override
+            public boolean onJsAlert(WebView view, String url, String message, JsResult result) {
+                Log.d(TAG, "Console: " + message);
+                return super.onJsAlert(view, url, message, result);
+            }
         });
+
         webView.setWebViewClient(new WebViewClient() {
+
+            @Override
+            public void onLoadResource(WebView view, String url) {
+                Log.d(TAG, "loading: " + url);
+                super.onLoadResource(view, url);
+            }
+
             public void onReceivedError(WebView view, int errorCode, String description, String failingUrl) {
                 Log.d(TAG, "onReceivedError: " + description);
             }
@@ -58,7 +78,7 @@ public class WebViewFragment extends Fragment {
 
         webView.addJavascriptInterface(new SimpleJavascriptInterface(), "javascriptInterface");
 
-        webView.loadUrl("file:///android_asset/index.html");
+        webView.loadUrl("file:///android_asset/application/index.html");
 
 //
 //        view.findViewById(R.id.send).setOnClickListener(new View.OnClickListener() {
