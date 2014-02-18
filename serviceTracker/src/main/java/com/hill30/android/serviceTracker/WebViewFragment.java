@@ -77,6 +77,7 @@ public class WebViewFragment extends Fragment {
         });
 
         webView.addJavascriptInterface(new SimpleJavascriptInterface(), "javascriptInterface");
+        webView.addJavascriptInterface(new WebApi(), "WebApi");
 
         webView.loadUrl("file:///android_asset/application/index.html");
 
@@ -89,6 +90,19 @@ public class WebViewFragment extends Fragment {
 //        });
 //
         return view;
+    }
+
+    public class WebApi {
+        public String get(String url) {
+            JSONObject jsonObject = new JSONObject();
+            try {
+                jsonObject.put("foo", "bar");
+                jsonObject.put("foo1", "bar1");
+            } catch (JSONException e) {
+                Log.e(TAG, e.getMessage(), e);
+            }
+            return jsonObject.toString();
+        }
     }
 
     public class SimpleJavascriptInterface {
