@@ -13,6 +13,7 @@ import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.widget.Toast;
 
+import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 
@@ -76,43 +77,21 @@ public class WebViewFragment extends Fragment {
             }
         });
 
-        webView.addJavascriptInterface(new SimpleJavascriptInterface(), "javascriptInterface");
         webView.addJavascriptInterface(new WebApi(), "WebApi");
-
         webView.loadUrl("file:///android_asset/application/index.html");
 
-//
-//        view.findViewById(R.id.send).setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                ((MainActivity)getActivity()).send("something");
-//            }
-//        });
-//
         return view;
     }
 
     public class WebApi {
         public String get(String url) {
-            JSONObject jsonObject = new JSONObject();
+            JSONArray jsonObject = new JSONArray();
             try {
-                jsonObject.put("foo", "bar");
-                jsonObject.put("foo1", "bar1");
+                jsonObject.put(new JSONObject("{'name':'branch 1'}"));
+                jsonObject.put(new JSONObject("{'name':'branch 2'}"));
+                jsonObject.put(new JSONObject("{'name':'branch 3'}"));
             } catch (JSONException e) {
-                Log.e(TAG, e.getMessage(), e);
-            }
-            return jsonObject.toString();
-        }
-    }
-
-    public class SimpleJavascriptInterface {
-        public String getJSON(){
-            JSONObject jsonObject = new JSONObject();
-            try {
-                jsonObject.put("foo", "bar");
-                jsonObject.put("foo1", "bar1");
-            } catch (JSONException e) {
-                Log.e(TAG, e.getMessage(), e);
+                e.printStackTrace();
             }
             return jsonObject.toString();
         }
