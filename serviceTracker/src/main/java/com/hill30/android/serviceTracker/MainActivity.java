@@ -21,7 +21,7 @@ public class MainActivity extends ActionBarActivity {
         new ActionBarTab(this, "Native", NativeView.class.getName());
         new ActionBarTab(this, "Web", WebViewFragment.class.getName());
 
-        serviceConnection = new ServiceConnection(this, "tcp://172.16.12.138:1883", "userName", "password", "ServiceTracker",
+        serviceConnection = new ServiceConnection(this, "tcp://10.0.2.2:1883", "userName", "password", "ServiceTracker",
             new ServiceConnection.MessageListener() {
                 @Override
                 public void onMessageArrived(String message) {

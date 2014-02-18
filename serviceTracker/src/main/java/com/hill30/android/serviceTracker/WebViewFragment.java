@@ -84,16 +84,13 @@ public class WebViewFragment extends Fragment {
     }
 
     public class WebApi {
-        public String get(String url) {
+        public String get(String url) throws Exception{
             JSONArray jsonObject = new JSONArray();
-            try {
-                jsonObject.put(new JSONObject("{'name':'branch 1'}"));
-                jsonObject.put(new JSONObject("{'name':'branch 2'}"));
-                jsonObject.put(new JSONObject("{'name':'branch 3'}"));
-            } catch (JSONException e) {
-                e.printStackTrace();
-            }
-            return jsonObject.toString();
+            jsonObject.put(new JSONObject("{'name':'branch 1'}"));
+            jsonObject.put(new JSONObject("{'name':'branch 2'}"));
+            jsonObject.put(new JSONObject("{'name':'branch 3'}"));
+            throw new JSONException("just try me");
+            //return jsonObject.toString();
         }
     }
 
