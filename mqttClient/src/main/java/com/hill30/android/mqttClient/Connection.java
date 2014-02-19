@@ -1,8 +1,8 @@
 package com.hill30.android.mqttClient;
 
+import android.content.res.AssetManager;
 import android.os.Handler;
 import android.os.Looper;
-import android.provider.Settings;
 import android.util.Log;
 
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
@@ -15,8 +15,12 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MqttDefaultFilePersistence;
 
+import java.io.FileOutputStream;
+import java.io.InputStream;
+import java.io.OutputStream;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.Properties;
 
 /**
  * Created by michaelfeingold on 2/5/14.
@@ -64,6 +68,13 @@ public class Connection extends Handler
             connectionOptions.setCleanSession(false);
             connectionOptions.setUserName(userName);
             connectionOptions.setPassword(password.toCharArray());
+
+            // setup SSL properties
+            String sslClientStore =  this.service.getString(R.string.SSLClientStore);
+            if(!sslClientStore.isEmpty()){
+                String sslClientStorePswd =  this.service.getString(R.string.SSLClientStorePswd);
+                connectionOptions.setSSLProperties( getSSLProperties("","",sslClientStore, sslClientStorePswd) );
+            }
 
             if (mqttClient == null) {
 
@@ -179,6 +190,55 @@ public class Connection extends Handler
                     Log.d(TAG, "Publish of " + message + " failed :" + e.toString());
                     break;
             }
+        }
+    }
+
+    private Properties getSSLProperties(String keyStoreFile, String keyStorePswd, String trustStoreFile, String trustStorePswd )
+    {
+        // Key and Trust stored are copied from Assets to make access to their paths.
+        // These Key and Trust store paths are set as connection SSL properties.
+        // Key store - for server authenticating client. This is NOT default setting on the broker
+        // Trust store - for client authenticating server. This is a must, default setting for SSL.
+
+        final Properties properties = new Properties();
+
+        if(!keyStoreFile.isEmpty()) {
+            String keyStoreFileName = copyFileFromAssetsToAppDirectory(keyStoreFile);
+            properties.setProperty("com.ibm.ssl.keyStore",keyStoreFileName);
+            properties.setProperty("com.ibm.ssl.keyStorePassword", keyStorePswd);
+            Log.d(TAG, "Key store file: " + keyStoreFileName);
+        }
+        String trustStoreFileName = copyFileFromAssetsToAppDirectory(trustStoreFile);
+        properties.setProperty("com.ibm.ssl.trustStore", trustStoreFileName);
+        properties.setProperty("com.ibm.ssl.trustStorePassword", trustStorePswd);
+        Log.d(TAG, "Trust store file: " + trustStoreFileName);
+
+        return properties;
+    }
+
+    private String copyFileFromAssetsToAppDirectory(String filename) {
+        try {
+            AssetManager assetManager = this.service.getBaseContext().getAssets();
+
+            InputStream in = assetManager.open(filename);
+            String newFilePathName = "/data/data/" + this.service.getBaseContext().getPackageName() + "/" + filename;
+            OutputStream out = new FileOutputStream(newFilePathName);
+
+            byte[] buffer = new byte[1024];
+            int read;
+            while ((read = in.read(buffer)) != -1) {
+                out.write(buffer, 0, read);
+            }
+            Log.d(TAG, "New file: " + newFilePathName );
+
+            in.close();
+            out.flush();
+            out.close();
+
+            return newFilePathName;
+        } catch (Exception e) {
+            Log.e(TAG, e.getMessage());
+            return "";
         }
     }
 
