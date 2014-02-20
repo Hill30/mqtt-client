@@ -135,7 +135,7 @@ public class WebViewFragment extends Fragment {
                 JSONObject jsonObject = new JSONObject(post);
                 return jsonObject.toString();
             }
-            throw new Exception("Invalid REST request: unknown controller '" + tokens[1] + "'");
+            throw new Exception("Invalid REST request: unknown controller '" + tokens[0] + "'");
         }
     }
 
