@@ -84,19 +84,33 @@ public class WebViewFragment extends Fragment {
     }
 
     public class WebApi {
-        public String get(String url, String post) throws Exception {
+        public String get(String url) throws Exception {
             String[] tokens = url.split("/");
-            if (!tokens[0].equals("api") || tokens.length < 2)
-                throw new Exception("Invalid REST request");
-            if (tokens[1].equals("activityRecords")) {
+            if (tokens[0].equals("activities")) {
                 JSONArray jsonObject = new JSONArray();
                 jsonObject.put(new JSONObject("{'id':'0', 'name':'branch 1'}"));
                 jsonObject.put(new JSONObject("{'id':'1', 'name':'branch 2'}"));
                 jsonObject.put(new JSONObject("{'id':'2', 'name':'branch 3'}"));
-    //            throw new JSONException("just try me");
                 return jsonObject.toString();
             }
-            throw new Exception("Invalid REST request");
+            if (tokens[0].equals("activity")) {
+                if (tokens.length < 2)
+                    throw new Exception("Invalid REST request: activityRecord id missing");
+                JSONObject jsonObject = new JSONObject();
+                jsonObject.put("id",tokens[1]);
+                jsonObject.put("name","branch 2");
+                return jsonObject.toString();
+            }
+            throw new Exception("Invalid REST request: unknown controller '" + tokens[1] + "'");
+        }
+
+        public String post(String url, String post) throws Exception {
+            String[] tokens = url.split("/");
+            if (tokens[0].equals("activity")) {
+                JSONObject jsonObject = new JSONObject(post);
+                return jsonObject.toString();
+            }
+            throw new Exception("Invalid REST request: unknown controller '" + tokens[1] + "'");
         }
     }
 

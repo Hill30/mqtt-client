@@ -1,5 +1,5 @@
 <div ng-controller='activityRecordsController'>ActivityRecords
-<div ng-repeat="record in records" ng-click="currentActivityRecord(record.id)">
+<div ng-repeat="record in records" ng-click="select(record.id)">
     {{record.id}}, {{record.name}}
 </div>
 </div>

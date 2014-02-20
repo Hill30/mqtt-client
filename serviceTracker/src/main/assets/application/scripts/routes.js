@@ -5,7 +5,7 @@ angular.module('application').config(['$routeProvider',
                 {
                     templateUrl: "views/activityRecords.html"
                 })
-            .when("/activities/:id",
+            .when("/activity/:id",
                 {
                     templateUrl: "views/activityRecordEditor.html"
                 })

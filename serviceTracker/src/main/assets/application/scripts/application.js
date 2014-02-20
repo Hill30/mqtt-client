@@ -1,3 +1,15 @@
+if (!window.WebApi)
+    window.WebApi = {
+        get: function(url) {
+            switch (url) {
+                case "activities":
+                    return [{id:4, name:'whatever'}];
+                default:
+                    return {id:4, name:'whatever'};
+            }
+        }
+    }
+
 angular.module('application', ['ngResource', 'ngRoute'])
 .config(['$provide', '$httpBackendProvider',
     function($provide, $httpBackendProvider){
@@ -10,7 +22,14 @@ angular.module('application', ['ngResource', 'ngRoute'])
                         return function(method, url, post, callback, headers, timeout, withCredentials) {
                             if (url.substring(0, 4) == "api/")
                                 try {
-                                    callback(200, window.WebApi[method.toLowerCase()](url, post));
+                                    switch (method.toLowerCase()) {
+                                        case "post" :
+                                            callback(200, window.WebApi.post(url.substring(4), post));
+                                            break;
+                                        default:
+                                            callback(200, window.WebApi.get(url.substring(4)));
+                                            break;
+                                    }
                                 } catch (exception) {
                                     // todo: extract more info from the exception object
                                     callback(500, exception);
