@@ -1,0 +1,36 @@
+{
+  "name": "ServiceTrackerMobile",
+  "version": "0.0.1",
+  "dependencies": {
+    "angular-route": "1.2.10",
+    "bootstrap": "3.0.0"
+  },
+  "exportsOverride": {
+    "bootstrap": {
+      "libs/vendors/": [],
+      "styles/vendors": [
+        "**/*.less"
+      ],
+      "images/vendors": []
+    },
+    "*": {
+      "libs/vendors": [
+        "*.js",
+        "*.coffee"
+      ],
+      "styles/vendors": [
+        "*.css",
+        "*.less"
+      ],
+      "img/vendors": [
+        "*.png",
+        "*.gif",
+        "*.jpeg",
+        "*.jpg"
+      ],
+      "views/vendors": [
+        "*.html"
+      ]
+    }
+  }
+}
