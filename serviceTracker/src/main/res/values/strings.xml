@@ -2,6 +2,8 @@
 <resources>
 
     <string name="app_name">ServiceTracker</string>
+    <string name="DB_NAME">ServiceTracker</string>
+
     <string name="hello_world">Hello world!</string>
     <string name="action_settings">Settings</string>
 
