@@ -3,9 +3,9 @@ if (!window.WebApi)
         get: function(url) {
             switch (url) {
                 case "activities":
-                    return [{id:4, name:'whatever'}];
+                    return [{id:0, name:'whatever'}];
                 default:
-                    return {id:4, name:'whatever'};
+                    return {id:0, name:'whatever'};
             }
         }
     }
@@ -40,11 +40,16 @@ angular.module('application', ['ngResource', 'ngRoute'])
                     }]
                 });
             }
-}])
-.run(['$rootScope', '$log', '$resource',
-    function($rootScope, console, $resource) {
+}]);
 
-//        var List = $resource('webapi/list/:name', {name:'branches'});
-//        $rootScope.list = List.query();
-
-    }]);
+angular.module('application')
+.service('NotificationService', ['$rootScope', '$log', function($rootScope, $log) {
+    var service = {
+        newRecord:
+            function(record) {
+                $rootScope.$broadcast('newRecord', record);
+                }
+        };
+    window.WebApi["NotificationService"] = service;
+    return service;
+}]);
