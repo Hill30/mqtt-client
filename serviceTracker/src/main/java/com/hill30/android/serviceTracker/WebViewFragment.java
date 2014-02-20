@@ -85,12 +85,18 @@ public class WebViewFragment extends Fragment {
 
     public class WebApi {
         public String get(String url, String post) throws Exception {
-            JSONArray jsonObject = new JSONArray();
-            jsonObject.put(new JSONObject("{'name':'branch 1'}"));
-            jsonObject.put(new JSONObject("{'name':'branch 2'}"));
-            jsonObject.put(new JSONObject("{'name':'branch 3'}"));
-//            throw new JSONException("just try me");
-            return jsonObject.toString();
+            String[] tokens = url.split("/");
+            if (!tokens[0].equals("api") || tokens.length < 2)
+                throw new Exception("Invalid REST request");
+            if (tokens[1].equals("activityRecords")) {
+                JSONArray jsonObject = new JSONArray();
+                jsonObject.put(new JSONObject("{'id':'0', 'name':'branch 1'}"));
+                jsonObject.put(new JSONObject("{'id':'1', 'name':'branch 2'}"));
+                jsonObject.put(new JSONObject("{'id':'2', 'name':'branch 3'}"));
+    //            throw new JSONException("just try me");
+                return jsonObject.toString();
+            }
+            throw new Exception("Invalid REST request");
         }
     }
 

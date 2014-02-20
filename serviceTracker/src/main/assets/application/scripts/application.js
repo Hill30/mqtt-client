@@ -1,6 +1,6 @@
 angular.module('application', ['ngResource', 'ngRoute'])
-.config(['$provide', '$routeProvider', '$httpBackendProvider',
-    function($provide, $routeProvider, $httpBackendProvider){
+.config(['$provide', '$httpBackendProvider',
+    function($provide, $httpBackendProvider){
         if (window.WebApi) {
             var originalProvider = $httpBackendProvider;
             $provide.provider('$httpBackend',
@@ -21,23 +21,6 @@ angular.module('application', ['ngResource', 'ngRoute'])
                     }]
                 });
             }
-    $routeProvider
-        .when("/activities",
-            {
-                templateUrl: "views/activityRecords.html"
-            })
-        .when("/activities/:id",
-            {
-                templateUrl: "views/activityRecords.html"
-            })
-        .otherwise(
-            {
-                redirectTo: "/activities"
-            });
-}])
-.controller('activityRecordsController', [
-    '$log', function(console) {
-        console.log();
 }])
 .run(['$rootScope', '$log', '$resource',
     function($rootScope, console, $resource) {
