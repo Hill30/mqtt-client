@@ -8,7 +8,7 @@ angular.module('application', ['ngResource', 'ngRoute'])
                     this.$get = ['$browser', '$log', '$injector', function($browser, console, $injector) {
                         var originalBackend = $injector.invoke(originalProvider.$get);
                         return function(method, url, post, callback, headers, timeout, withCredentials) {
-                            if (false)
+                            if (url.substring(0, 4) == "api/")
                                 try {
                                     callback(200, window.WebApi[method.toLowerCase()](url, post));
                                 } catch (exception) {
