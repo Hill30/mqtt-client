@@ -2,3 +2,9 @@
 /local.properties
 /.idea
 .DS_Store
+node_modules/
+bower_components/
+serviceTracker/src/main/assets/application/libs/vendors/
+serviceTracker/src/main/assets/application/styles/vendors/
+serviceTracker/src/main/assets/application/public/
+serviceTracker/src/main/assets/application/.temp/
