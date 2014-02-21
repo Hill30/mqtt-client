@@ -167,7 +167,6 @@ module.exports = (grunt) ->
 			app:
 				options:
 					base: './serviceTracker/src/main/assets/application'
-					middleware: require './server/middleware'
 					port: 5000
 					livereload: false
 					keepalive: true
