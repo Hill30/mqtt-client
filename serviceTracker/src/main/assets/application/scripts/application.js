@@ -1,6 +1,18 @@
+if (!window.WebApi)
+    window.WebApi = {
+        get: function(url) {
+            switch (url) {
+                case "activities":
+                    return [{id:0, name:'whatever'}];
+                default:
+                    return {id:0, name:'whatever'};
+            }
+        }
+    }
+
 angular.module('application', ['ngResource', 'ngRoute'])
-.config(['$provide', '$routeProvider', '$httpBackendProvider',
-    function($provide, $routeProvider, $httpBackendProvider){
+.config(['$provide', '$httpBackendProvider',
+    function($provide, $httpBackendProvider){
         if (window.WebApi) {
             var originalProvider = $httpBackendProvider;
             $provide.provider('$httpBackend',
@@ -8,9 +20,16 @@ angular.module('application', ['ngResource', 'ngRoute'])
                     this.$get = ['$browser', '$log', '$injector', function($browser, console, $injector) {
                         var originalBackend = $injector.invoke(originalProvider.$get);
                         return function(method, url, post, callback, headers, timeout, withCredentials) {
-                            if (false)
+                            if (url.substring(0, 4) == "api/")
                                 try {
-                                    callback(200, window.WebApi[method.toLowerCase()](url, post));
+                                    switch (method.toLowerCase()) {
+                                        case "post" :
+                                            callback(200, window.WebApi.post(url.substring(4), post));
+                                            break;
+                                        default:
+                                            callback(200, window.WebApi.get(url.substring(4)));
+                                            break;
+                                    }
                                 } catch (exception) {
                                     // todo: extract more info from the exception object
                                     callback(500, exception);
@@ -21,28 +40,16 @@ angular.module('application', ['ngResource', 'ngRoute'])
                     }]
                 });
             }
-    $routeProvider
-        .when("/activities",
-            {
-                templateUrl: "views/activityRecords.html"
-            })
-        .when("/activities/:id",
-            {
-                templateUrl: "views/activityRecords.html"
-            })
-        .otherwise(
-            {
-                redirectTo: "/activities"
-            });
-}])
-.controller('activityRecordsController', [
-    '$log', function(console) {
-        console.log();
-}])
-.run(['$rootScope', '$log', '$resource',
-    function($rootScope, console, $resource) {
+}]);
 
-//        var List = $resource('webapi/list/:name', {name:'branches'});
-//        $rootScope.list = List.query();
-
-    }]);
+angular.module('application')
+.service('NotificationService', ['$rootScope', '$log', function($rootScope, $log) {
+    var service = {
+        newRecord:
+            function(record) {
+                $rootScope.$broadcast('newRecord', record);
+                }
+        };
+    window.WebApi["NotificationService"] = service;
+    return service;
+}]);

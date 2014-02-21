@@ -14,6 +14,9 @@ public class ServiceConnection implements android.content.ServiceConnection {
     private ConnectionBinder connectionBinder;
     private MessageListener messageListener;
 
+    public static final String MESSAGE_ARRIVED = "com.hill30.android.mqttClient.message_arrived";
+    public static final String MESSAGE_PAYLOAD = "com.hill30.android.mqttClient.message_payload";
+
     public interface MessageListener {
         void onMessageArrived(String message);
     }

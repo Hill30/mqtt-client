@@ -1,5 +1,6 @@
 package com.hill30.android.serviceTracker;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBar;
 import android.support.v7.app.ActionBarActivity;
@@ -34,6 +35,7 @@ public class MainActivity extends ActionBarActivity {
             new ServiceConnection.MessageListener() {
                 @Override
                 public void onMessageArrived(String message) {
+                    sendBroadcast(new Intent(ServiceConnection.MESSAGE_ARRIVED).putExtra(ServiceConnection.MESSAGE_PAYLOAD, message));
                     Log.d("*****", "received " + message);
                 }
             });

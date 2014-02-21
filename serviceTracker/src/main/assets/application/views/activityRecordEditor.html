@@ -1,0 +1,12 @@
+<div ng-controller='activityRecordEditorController'>
+    Editor
+
+    <div>
+        ID: {{record.id}}
+        Name: <input ng-model="record.name"/>
+    </div>
+    <div>
+        <a href="#" ng-click="cancel()">Cancel</a>
+        <a href="#" ng-click="update()">Apply</a>
+    </div>
+</div>
