@@ -159,7 +159,7 @@ module.exports = (grunt) ->
 		less:
 			styles:
 				files:
-					'<%= path.toApp %>/.temp/styles/custom/styles.css': ['<%= path.toApp %>/.temp/styles/vendors/bootstrap/bootstrap.less','./.temp/styles/custom/styles.less']
+					'<%= path.toApp %>/styles/vendors/styles.css': ['<%= path.toApp %>/styles/vendors/bootstrap/bootstrap.less']
 	#options:
 	#  sourcemap: true
 
@@ -370,7 +370,7 @@ module.exports = (grunt) ->
 		#'copy:img'
 		#'copy:favicon'
 		#'copy:csslib'
-		#'less:styles'
+		'less:styles'
 		#'copy:fonts'
 		#'template:dev'
 		#'copy:dev'
