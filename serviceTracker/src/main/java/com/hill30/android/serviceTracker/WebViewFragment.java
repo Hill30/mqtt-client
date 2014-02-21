@@ -19,6 +19,7 @@ import android.webkit.WebViewClient;
 import android.widget.Toast;
 
 import com.hill30.android.mqttClient.ServiceConnection;
+import com.hill30.android.serviceTracker.entities.ActivityRecordMessage;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -36,7 +37,8 @@ public class WebViewFragment extends Fragment {
 
     private WebView webView;
 
-    private HashMap<String, String> records = new HashMap<String, String>();
+    private Integer nextId = 0;
+    private HashMap<Integer, ActivityRecordMessage> records = new HashMap<Integer, ActivityRecordMessage>();
 
     public WebViewFragment() {
     }
@@ -97,8 +99,10 @@ public class WebViewFragment extends Fragment {
             public void onReceive(Context context, Intent intent) {
                 String payload = intent.getStringExtra(ServiceConnection.MESSAGE_PAYLOAD);
                 try {
-                    records.put(new JSONObject(payload).getString("id"), payload);
-                    webView.loadUrl("javascript:WebApi.NotificationService.newRecord(\'" + payload + "\')");
+                    ActivityRecordMessage activityRecord = new ActivityRecordMessage(nextId, new JSONObject(payload));
+                    records.put(nextId, activityRecord);
+                    nextId += 1;
+                    webView.loadUrl("javascript:WebApi.NotificationService.newRecord(\'" + activityRecord.toJSON().toString() + "\')");
                 } catch (JSONException e) {
                     e.printStackTrace();
                 }
@@ -112,21 +116,18 @@ public class WebViewFragment extends Fragment {
         public String get(String url) throws Exception {
             String[] tokens = url.split("/");
             if (tokens[0].equals("activities")) {
-                JSONArray jsonObject = new JSONArray();
-                for (HashMap.Entry<String, String> record : records.entrySet()) {
-                    jsonObject.put(new JSONObject(record.getValue()));
+                JSONArray result = new JSONArray();
+                for (HashMap.Entry<Integer, ActivityRecordMessage> record : records.entrySet()) {
+                    result.put(record.getValue().toJSON());
                 }
-                return jsonObject.toString();
+                return result.toString();
             }
             if (tokens[0].equals("activity")) {
                 if (tokens.length < 2)
                     throw new Exception("Invalid REST request: activityRecord id missing");
-                JSONObject jsonObject = new JSONObject();
-                jsonObject.put("id",tokens[1]);
-                jsonObject.put("name","branch 2");
-                return new JSONObject(records.get(tokens[1])).toString();
+                return records.get(Integer.parseInt(tokens[1])).getPayload().toString();
             }
-            throw new Exception("Invalid REST request: unknown controller '" + tokens[1] + "'");
+            throw new Exception("Invalid REST request: unknown controller '" + tokens[0] + "'");
         }
 
         public String post(String url, String post) throws Exception {

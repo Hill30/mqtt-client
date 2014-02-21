@@ -3,9 +3,9 @@ if (!window.WebApi)
         get: function(url) {
             switch (url) {
                 case "activities":
-                    return [{id:0, clientName:'John Smith'}];
+                    return [{id:0, payload: {clientName:'John Smith'}}];
                 default:
-                    return {id:0, clientName:'John Smith'};
+                    return {id:0, payload:{clientName:'John Smith'}};
             }
         }
     }
