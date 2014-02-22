@@ -7,19 +7,78 @@ body {
 	font-size: 20px;
 }
 
+.activity-list .row,
+.activity-list [class*="col-"] {
+	display: block;
+}
+
 .activity-list > ul {
 	padding: 0;
 }
 
 .activity-list > ul > li {
 	list-style: none;
-	padding: 15px 15px 10px 15px;
-	border-top: 1px #bababa solid;	
-
+	margin-top: -1px;
 }
 
-.activity-list > ul > li:first-child {
-	border-top: none;
+.activity-list a {
+	text-decoration: none;
+	display: block;
+	padding: 15px 15px 10px 15px;
+	-moz-transition: all .5s linear;
+	-webkit-transition: all .5s linear;
+	transition: all .5s linear;
+	position: relative;
+}
+
+.activity-list a:before,
+.activity-list a:after {
+	content: "";
+	transition: all 1s linear;
+	position: absolute;
+	width: 100%;
+	height: 1px;	
+	left: 0;
+	background: #aeaeae;
+}
+
+.activity-list a:before {
+	top: 0;
+}
+
+.activity-list > ul > li:first-child a:before {
+	display: none;	
+}
+
+.activity-list a:after {
+	bottom: 0;
+	background: #007240;
+	opacity: 0;
+}
+
+.activity-list a:link,
+.activity-list a:visited {
+	color: #555;
+}
+
+.activity-list a:hover,
+.activity-list a:active,
+.activity-list a:focus {
+	background: #009755;
+	color: #fff;
+	z-index: 10;	
+}
+
+.activity-list a:hover:before,
+.activity-list a:active:before,
+.activity-list a:focus:before {
+	background: #007240; 
+}
+
+.activity-list a:hover:after,
+.activity-list a:active:after,
+.activity-list a:focus:after {
+	opacity: 1;
 }
 
 .activity-employ-name {
@@ -42,30 +101,43 @@ body {
 }*/
 
 	/*activity-alerts*/
-	.activity-alerts {
+	.activity-list .activity-alerts {
+		display: block;
 		text-align: right;
 		font-size: .7em;
+		color: #009755;
+		-webkit-transition: all .5s linear;
+		-moz-transition: all .5s linear;
+		transition: all .5s linear;
 	}
 
-	.activity-alerts .glyphicon {
-		color: #009755;
-		margin-bottom: .2em;
+	.activity-list .activity-alerts .glyphicon {		
+		margin-bottom: .2em;		
+	}
+
+	.activity-list a:hover .activity-alerts,
+	.activity-list a:active .activity-alerts,
+	.activity-list a:focus .activity-alerts {		
+		color: #fff;
+
 	}
 	/*!activity-alerts*/
 
 	/*activity-inf*/
-	.activity-inf ul {
-		padding: .5em 0 0 1em;
-
+	.activity-list .activity-inf {
+		display: block;
 	}
 
-	.activity-inf ul li {
+	.activity-list .activity-inf ul {
+		padding: .5em 0 0 1em;
+	}
+
+	.activity-list .activity-inf ul li {
 		/*display: inline-block;*/
 		float: left;
 		position: relative;
 		font-size: .7em;
-		margin: 0 2em .5em 0;
-		
+		margin: 0 2em .5em 0;		
 		line-height: 1em;
 		list-style-type: disc;
 		list-style-position: outside;
