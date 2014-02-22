@@ -1,12 +1,75 @@
 <div ng-controller='activityRecordEditorController'>
-    Editor
 
-    <div>
-        ID: {{record.id}}
-        Name: <input ng-model="record.name"/>
-    </div>
-    <div>
-        <a href="#" ng-click="cancel()">Cancel</a>
-        <a href="#" ng-click="update()">Apply</a>
+    <div class="activity-details">
+
+        <div class="row activity-list">
+            <div class="col-xs-8">
+                <span class="activity-client-name">{{record.payload.clientName}}</span>
+            </div>
+        </div>
+
+        <div class="row">
+            <form class="form-horizontal" role="form">
+
+                <!--form-group-->
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">Service Date:</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control">
+                    </div>
+                </div>
+                <!--/form-group-->
+
+                <!--form-group-->
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">Start Time:</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control">
+                    </div>
+                </div>
+                <!--/form-group-->
+
+                <!--form-group-->
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">End Time:</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control">
+                    </div>
+                </div>
+                <!--/form-group-->
+
+                <!--form-group-->
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">Duration:</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control">
+                    </div>
+                </div>
+                <!--/form-group-->
+
+                <!--form-group-->
+                <div class="form-group">
+                    <label class="col-sm-3 control-label">Travel Distance:</label>
+                    <div class="col-sm-9">
+                        <input type="text" class="form-control">
+                    </div>
+                </div>
+                <!--/form-group-->
+
+                <!--form-group-->
+                <div class="form-group">
+
+                    <div class="col-sm-offset-3 col-sm-9 text-right">
+
+                        <a href="#" class="btn btn-default" ng-click="cancel()">Cancel</a>
+                        <a href="#" class="btn btn-primary" ng-click="update()"><span class="glyphicon glyphicon-disk"></span> Save</a>
+
+                    </div>
+                </div>
+                <!--/form-group-->
+
+            </form>
+        </div>
+
     </div>
 </div>

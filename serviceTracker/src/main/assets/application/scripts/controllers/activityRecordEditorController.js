@@ -3,8 +3,8 @@ angular.module('application').controller('activityRecordEditorController', [
 
         var id = $location.path().substring(10);
 
-        var Record = $resource('api/activity/:id');
-        $scope.record = Record.get({'id':id});
+        var Record = $resource('api/activity/' + id);
+        $scope.record = Record.get();
 
         $scope.cancel = function() {
                 $location.path("activities");

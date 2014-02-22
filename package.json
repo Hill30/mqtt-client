@@ -3,7 +3,6 @@
   "version": "0.0.1",
   "dependencies": {
     "coffee-script": "1.6.2",
-    "express": "3.2.5",
     "grunt": "0.4.1",
     "grunt-contrib-clean": "0.4.1",
     "grunt-contrib-coffee": "0.7.0",
@@ -20,8 +19,5 @@
   "engines": {
     "node": "0.8.x",
     "npm": "1.1.x"
-  },
-  "devDependencies": {
-    "socket.io": ""
   }
 }

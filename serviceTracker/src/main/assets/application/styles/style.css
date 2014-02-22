@@ -81,21 +81,21 @@ body {
 	opacity: 1;
 }
 
-.activity-employ-name {
+.activity-client-name {
 	/*font-size: 20px;*/
 	line-height: 1em;
 }
 
 /*@media (min-width: 480px) {
 
-	.activity-employ-name {
+	.activity-client-name {
 		font-size: 3vw;	
 	}
 }
 
 @media (min-width: 1500px) {
 
-	.activity-employ-name {
+	.activity-client-name {
 		font-size: 45px;	
 	}
 }*/
