@@ -146,8 +146,10 @@ public class WebViewFragment extends Fragment {
         public String post(String url, String post) throws Exception {
             String[] tokens = url.split("/");
             if (tokens[0].equals("activity")) {
-                JSONObject jsonObject = new JSONObject(post);
-                return jsonObject.toString();
+                if (tokens.length < 2)
+                    throw new Exception("Invalid REST request: activityRecord id missing");
+                records.get(Integer.parseInt(tokens[1])).setPayload(new JSONObject(post));
+                return post;
             }
             throw new Exception("Invalid REST request: unknown controller '" + tokens[0] + "'");
         }
