@@ -1,5 +1,5 @@
 body {
-	min-width: 160px;
+	min-width: 200px;
 }
 
 /*activity-list*/
@@ -16,12 +16,8 @@ body {
 	padding: 0;
 }
 
-.activity-list > ul > li {
-	list-style: none;
-	margin-top: -1px;
-}
 
-.activity-list a {
+.activity-list > ul > li {
 	text-decoration: none;
 	display: block;
 	padding: 15px 15px 10px 15px;
@@ -29,10 +25,13 @@ body {
 	-webkit-transition: all .5s linear;
 	transition: all .5s linear;
 	position: relative;
+	color: #555;
+	cursor: pointer;
+	margin-top: -1px;
 }
 
-.activity-list a:before,
-.activity-list a:after {
+.activity-list > ul > li:before,
+.activity-list > ul > li:after {
 	content: "";
 	transition: all 1s linear;
 	position: absolute;
@@ -42,63 +41,19 @@ body {
 	background: #aeaeae;
 }
 
-.activity-list a:before {
+.activity-list > ul > li:before {
 	top: 0;
 }
 
-.activity-list > ul > li:first-child a:before {
+.activity-list > ul > li:first-child:before {
 	display: none;	
 }
 
-.activity-list a:after {
+.activity-list > ul > li:after {
 	bottom: 0;
 	background: #007240;
 	opacity: 0;
 }
-
-.activity-list a:link,
-.activity-list a:visited {
-	color: #555;
-}
-
-.activity-list a:hover,
-.activity-list a:active,
-.activity-list a:focus {
-	background: #009755;
-	color: #fff;
-	z-index: 10;	
-}
-
-.activity-list a:hover:before,
-.activity-list a:active:before,
-.activity-list a:focus:before {
-	background: #007240; 
-}
-
-.activity-list a:hover:after,
-.activity-list a:active:after,
-.activity-list a:focus:after {
-	opacity: 1;
-}
-
-.activity-client-name {
-	/*font-size: 20px;*/
-	line-height: 1em;
-}
-
-/*@media (min-width: 480px) {
-
-	.activity-client-name {
-		font-size: 3vw;	
-	}
-}
-
-@media (min-width: 1500px) {
-
-	.activity-client-name {
-		font-size: 45px;	
-	}
-}*/
 
 	/*activity-alerts*/
 	.activity-list .activity-alerts {
@@ -115,12 +70,7 @@ body {
 		margin-bottom: .2em;		
 	}
 
-	.activity-list a:hover .activity-alerts,
-	.activity-list a:active .activity-alerts,
-	.activity-list a:focus .activity-alerts {		
-		color: #fff;
-
-	}
+	
 	/*!activity-alerts*/
 
 	/*activity-inf*/
@@ -130,32 +80,72 @@ body {
 
 	.activity-list .activity-inf ul {
 		padding: .5em 0 0 1em;
+		
 	}
 
 	.activity-list .activity-inf ul li {
-		/*display: inline-block;*/
-		float: left;
+		display: inline-block;		
 		position: relative;
 		font-size: .7em;
 		margin: 0 2em .5em 0;		
 		line-height: 1em;
-		list-style-type: disc;
-		list-style-position: outside;
+		list-style: none;		
 	}
 
-	/*.activity-inf ul li:before {
-		content: "";
-		width: .5em;
-		height: .5em;
+	.activity-list .activity-inf ul li:before {
+		-webkit-transition: all .5s linear;
+		-moz-transition: all .5s linear;
+		transition: all .5s linear;
 		border-radius: 1em;
+		content: "";
+		background: #767676;		
+		width: .5em;
+		height: .5em;		
 		position: absolute;
-		left: -.7em;
-		top: .5em;
-		background: gray;
-	}*/
+		top: .3em;
+		left: -.8em;
+	}	
 	/*!activity-inf*/
-	
 
+	/*hover*/
+	.activity-list > ul > li:hover,
+	.activity-list > ul > li:focus {
+		background: #009755;
+		color: #fff;
+		z-index: 10;	
+	}
+
+	.activity-list > ul > li:hover:before,
+	.activity-list > ul > li:focus:before {
+		background: #007240; 
+	}
+
+	.activity-list > ul > li:hover:after,
+	.activity-list > ul > li:focus:after {
+		opacity: 1;
+	}
+
+	.activity-client-name {	
+		line-height: 1em;
+	}
+
+
+		/*activity-alerts*/
+		.activity-list > ul > li:hover .activity-alerts,	
+		.activity-list > ul > li:focus .activity-alerts {		
+			color: #fff;
+		}
+		/*!activity-alerts*/
+
+		/*activity-inf*/
+		.activity-list  > ul > li:hover .activity-inf ul li:before,
+		.activity-list  > ul > li:hover .activity-inf ul li:before {
+			background: #fff;
+			opacity: .7;
+		}
+		/*!activity-inf*/	
+
+	/*!hover*/
 
 /*!activity-list*/
 
@@ -164,12 +154,68 @@ body {
 	font-size: 15px;
 	padding: 1em;
 	margin: 0 auto;
-	 
+	-moz-box-sizing: border-box;
+	box-sizing: border-box;	 
+}
+
+.activity-details .activity-details-client-name {
+	font-size: 1.2em;
+	color: #767676;
+	position: relative;
+	padding: 0 0 0 1.5em;
+}
+
+.activity-details .activity-details-client-name .glyphicon {
+	position: absolute;
+	left: 0;
+	top: .2em;
+	color: #007C46;
+}
+
+.activity-details .control-label {
+	text-align: right;
 }
 
 @media (min-width: 992px){
 	.activity-details {
 		width: 70%;
+	}
+}
+
+@media (max-width: 600px){
+	.activity-details .control-label {		
+	padding-right: .2em;
+	}
+
+	.activity-details [class*="col-"] {
+		padding-left: .2em;
+	}
+
+	.activity-details .control-label {
+		width: 40%;
+	}
+
+	.activity-details .input-wrap {
+		width: 60%;
+	}
+}
+
+@media (max-width: 335px){ 
+	.activity-details .control-label {
+		display: block;
+		float: none;
+		width: auto;
+		text-align: left;
+		padding-right: 15px;
+		padding-left: 15px;
+	}
+	
+	.activity-details .input-wrap {
+		display: block;
+		float: none;
+		width: auto;
+		padding-right: 15px;
+		padding-left: 15px;
 	}
 }
 
