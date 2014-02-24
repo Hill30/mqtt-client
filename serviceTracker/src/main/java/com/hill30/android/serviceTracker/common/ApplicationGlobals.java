@@ -1,8 +1,8 @@
 package com.hill30.android.serviceTracker.common;
 
 import com.hill30.android.serviceTracker.common.database.DBConnectionPool;
-import com.hill30.android.serviceTracker.persistance.factories.ActivityRecordMessageFactory;
-import com.hill30.android.serviceTracker.persistance.interfaces.IActivityRecordMessageFactory;
+import com.hill30.android.serviceTracker.persistence.factories.ActivityRecordMessageFactory;
+import com.hill30.android.serviceTracker.persistence.interfaces.IActivityRecordMessageFactory;
 
 /**
  * Created by azavarin on 2/20/14.

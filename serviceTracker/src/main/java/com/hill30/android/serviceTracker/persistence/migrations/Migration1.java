@@ -1,10 +1,10 @@
-package com.hill30.android.serviceTracker.persistance.migrations;
+package com.hill30.android.serviceTracker.persistence.migrations;
 
 import android.database.sqlite.SQLiteDatabase;
 import android.util.Log;
 
 import com.hill30.android.serviceTracker.common.database.IMigration;
-import com.hill30.android.serviceTracker.persistance.factories.ActivityRecordMessageFactory;
+import com.hill30.android.serviceTracker.persistence.factories.ActivityRecordMessageFactory;
 
 /**
  * Created by azavarin on 2/20/14.

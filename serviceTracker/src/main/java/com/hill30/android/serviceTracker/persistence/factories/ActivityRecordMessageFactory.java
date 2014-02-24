@@ -1,12 +1,11 @@
-package com.hill30.android.serviceTracker.persistance.factories;
+package com.hill30.android.serviceTracker.persistence.factories;
 
 import android.content.ContentValues;
 import android.database.Cursor;
 
 import com.hill30.android.serviceTracker.common.database.AbstractCursorReader;
 import com.hill30.android.serviceTracker.entities.ActivityRecordMessage;
-import com.hill30.android.serviceTracker.persistance.interfaces.IActivityRecordMessageFactory;
-import com.hill30.android.serviceTracker.persistance.interfaces.IEntityFactory;
+import com.hill30.android.serviceTracker.persistence.interfaces.IActivityRecordMessageFactory;
 
 /**
  * Created by azavarin on 2/20/14.

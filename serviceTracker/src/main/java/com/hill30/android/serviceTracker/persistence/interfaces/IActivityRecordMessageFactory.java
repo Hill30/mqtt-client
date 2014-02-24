@@ -1,4 +1,4 @@
-package com.hill30.android.serviceTracker.persistance.interfaces;
+package com.hill30.android.serviceTracker.persistence.interfaces;
 
 import com.hill30.android.serviceTracker.entities.ActivityRecordMessage;
 

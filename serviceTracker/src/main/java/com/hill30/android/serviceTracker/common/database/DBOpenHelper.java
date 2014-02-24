@@ -9,7 +9,7 @@ import android.util.Log;
 
 import com.hill30.android.serviceTracker.R;
 import com.hill30.android.serviceTracker.common.ApplicationGlobals;
-import com.hill30.android.serviceTracker.persistance.migrations.Migration1;
+import com.hill30.android.serviceTracker.persistence.migrations.Migration1;
 
 import java.util.*;
 

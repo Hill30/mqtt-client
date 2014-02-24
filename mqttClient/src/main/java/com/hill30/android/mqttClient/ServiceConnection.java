@@ -12,6 +12,7 @@ import org.eclipse.paho.client.mqttv3.MqttException;
  */
 public class ServiceConnection implements android.content.ServiceConnection {
     private ConnectionBinder connectionBinder;
+    private Context context;
     private MessageListener messageListener;
 
     public static final String MESSAGE_ARRIVED = "com.hill30.android.mqttClient.message_arrived";
@@ -22,6 +23,7 @@ public class ServiceConnection implements android.content.ServiceConnection {
     }
 
     public ServiceConnection(Context context, String brokerUrl, String userName, String password, String topic, MessageListener messageListener) {
+        this.context = context;
         this.messageListener = messageListener;
         // todo: validate topic for illegal characters - it is important for matching incoming message to the recipients (see Connection.java)
         context.bindService(
@@ -51,6 +53,10 @@ public class ServiceConnection implements android.content.ServiceConnection {
 
     public void send(String message) {
         connectionBinder.send(message);
+    }
+
+    public void close() {
+        context.unbindService(this);
     }
 
 }

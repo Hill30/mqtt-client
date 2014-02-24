@@ -1,4 +1,4 @@
-package com.hill30.android.serviceTracker.persistance.factories;
+package com.hill30.android.serviceTracker.persistence.factories;
 
 import android.content.ContentValues;
 import android.database.Cursor;
@@ -7,7 +7,7 @@ import com.hill30.android.serviceTracker.common.database.AbstractCursorReader;
 import com.hill30.android.serviceTracker.common.database.AbstractFactory;
 import com.hill30.android.serviceTracker.common.database.DBConnectionPool;
 import com.hill30.android.serviceTracker.entities.EntityBase;
-import com.hill30.android.serviceTracker.persistance.interfaces.IEntityFactory;
+import com.hill30.android.serviceTracker.persistence.interfaces.IEntityFactory;
 
 import java.util.ArrayList;
 import java.util.List;
