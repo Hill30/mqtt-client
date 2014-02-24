@@ -39,6 +39,7 @@ public class WebViewFragment extends Fragment {
 
     private Integer nextId = 0;
     private HashMap<Integer, ActivityRecordMessage> records = new HashMap<Integer, ActivityRecordMessage>();
+    private BroadcastReceiver broadcastReceiver;
 
     public WebViewFragment() {
     }
@@ -94,7 +95,7 @@ public class WebViewFragment extends Fragment {
         webView.addJavascriptInterface(new WebApi(), "WebApi");
         webView.loadUrl("file:///android_asset/application/index.html");
 
-        getActivity().registerReceiver(new BroadcastReceiver() {
+        broadcastReceiver = new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
                 String payload = intent.getStringExtra(ServiceConnection.MESSAGE_PAYLOAD);
@@ -107,9 +108,21 @@ public class WebViewFragment extends Fragment {
                     e.printStackTrace();
                 }
             }
-        }, new IntentFilter(ServiceConnection.MESSAGE_ARRIVED));
+        };
 
         return view;
+    }
+
+    @Override
+    public void onResume() {
+        super.onResume();
+        getActivity().registerReceiver(broadcastReceiver, new IntentFilter(ServiceConnection.MESSAGE_ARRIVED));
+    }
+
+    @Override
+    public void onPause() {
+        super.onPause();
+        getActivity().unregisterReceiver(broadcastReceiver);
     }
 
     public class WebApi {
