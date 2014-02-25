@@ -31,7 +31,7 @@ public class MVCControllers {
                     @Override
                     public void onMessageArrived(String message) {
                         try {
-                            ActivityRecordMessage activityRecord = new ActivityRecordMessage(nextId, new JSONObject(message));
+                            final ActivityRecordMessage activityRecord = new ActivityRecordMessage(nextId, new JSONObject(message));
                             records.put(nextId, activityRecord);
                             nextId += 1;
                             webView.loadUrl("javascript:WebApi.NotificationService.newRecord(\'" + activityRecord.toJSON().toString() + "\')");
