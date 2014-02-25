@@ -1,10 +1,11 @@
 <div ng-controller='activityRecordsController' class="activity-list">
+    Visits:
     <ul>
 
         <li ng-repeat="record in records" ng-click="select(record.id)">            
             <div class="row"> 
                 <div class="col-xs-8">
-                    <div class="activity-employ-name">{{record.payload.clientName}}</div>
+                    <div>{{record.payload.clientName}}</div>
                 </div>
                 <div class="col-xs-4">
                     <div class="activity-alerts">
@@ -16,6 +17,7 @@
             </div>
             <div class="activity-inf clearfix">
                 <ul>
+                    <li><span class="activity-inf-heading">Date: </span>{{record.payload.date}}</li>
                     <li><span class="activity-inf-heading">Started: </span>{{record.payload.started}}</li>
                     <li><span class="activity-inf-heading">Ended: </span>{{record.payload.ended}}</li>
                     <li><span class="activity-inf-heading">Distance: </span>{{record.payload.distance}}</li>
