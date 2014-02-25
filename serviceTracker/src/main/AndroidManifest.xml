@@ -17,6 +17,7 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".activities.SettingsActivity" android:label="Settings" android:theme="@style/AppTheme"/>
 
         <service android:name="com.hill30.android.mqttClient.Service" />
 

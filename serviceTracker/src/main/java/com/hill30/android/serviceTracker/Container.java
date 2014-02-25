@@ -16,6 +16,8 @@ import android.webkit.WebViewClient;
 import android.widget.Toast;
 
 import com.hill30.android.mqttClient.ServiceConnection;
+import com.hill30.android.serviceTracker.activities.SettingsActivity;
+import com.hill30.android.serviceTracker.common.Application;
 import com.hill30.android.serviceTracker.entities.ActivityRecordMessage;
 
 import org.json.JSONException;
@@ -28,6 +30,10 @@ public class Container extends ActionBarActivity {
     private static final String TAG = "**WEBVIEW**";
 
     private WebView webView;
+
+    private Application application(){
+        return (Application) getApplication();
+    }
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,9 +81,17 @@ public class Container extends ActionBarActivity {
             }
         });
 
-        webView.addJavascriptInterface(new MVCControllers(webView), "WebApi");
-        webView.loadUrl("file:///android_asset/application/index.html");
+    }
 
+    @Override
+    protected void onResume() {
+        super.onResume();
+        if(!application().messagingServicePreferences().isValid()){
+            startActivity(new Intent(Container.this, SettingsActivity.class));
+        } else {
+            webView.addJavascriptInterface(new MVCControllers(application(), webView), "WebApi");
+            webView.loadUrl("file:///android_asset/application/index.html");
+        }
     }
 
     @Override
@@ -95,6 +109,7 @@ public class Container extends ActionBarActivity {
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
         if (id == R.id.action_settings) {
+            startActivity(new Intent(Container.this, SettingsActivity.class));
             return true;
         }
         return super.onOptionsItemSelected(item);

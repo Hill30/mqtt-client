@@ -3,6 +3,7 @@ package com.hill30.android.serviceTracker;
 import android.webkit.WebView;
 
 import com.hill30.android.mqttClient.ServiceConnection;
+import com.hill30.android.serviceTracker.common.Application;
 import com.hill30.android.serviceTracker.entities.ActivityRecordMessage;
 
 import org.json.JSONArray;
@@ -19,10 +20,13 @@ public class MVCControllers {
     private final ServiceConnection serviceConnection;
     private HashMap<Integer, ActivityRecordMessage> records = new HashMap<Integer, ActivityRecordMessage>();
     private int nextId;
+    private Application application;
 
-    public MVCControllers(final WebView webView) {
+    public MVCControllers(Application application, final WebView webView) {
 
-        serviceConnection = new ServiceConnection(webView.getContext(), "tcp://10.0.2.2:1883", "userName", "password", "ServiceTracker",
+        this.application = application;
+
+        serviceConnection = new ServiceConnection(webView.getContext(), this.application.messagingServicePreferences().getUrl(), this.application.messagingServicePreferences().getUsername(), this.application.messagingServicePreferences().getPassword(), "ServiceTracker",
                 new ServiceConnection.MessageListener() {
                     @Override
                     public void onMessageArrived(String message) {
