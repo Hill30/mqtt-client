@@ -9,6 +9,7 @@ import android.util.Log;
  * Created by azavarin on 2/26/14.
  */
 public class MessagePersistenceService extends Service {
+
     @Override
     public IBinder onBind(Intent intent) {
         return null;

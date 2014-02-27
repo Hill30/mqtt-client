@@ -3,6 +3,7 @@ package com.hill30.android.serviceTracker;
 import android.webkit.WebView;
 
 import com.hill30.android.mqttClient.ServiceConnection;
+import com.hill30.android.serviceTracker.activityRecordStorage.StorageConnection;
 import com.hill30.android.serviceTracker.common.Application;
 import com.hill30.android.serviceTracker.entities.ActivityRecordMessage;
 
@@ -17,37 +18,18 @@ import java.util.HashMap;
  */
 public class MVCControllers {
 
-    private final ServiceConnection serviceConnection;
-    private HashMap<Integer, ActivityRecordMessage> records = new HashMap<Integer, ActivityRecordMessage>();
-    private int nextId;
-    private Application application;
+    private StorageConnection storageConnection;
 
-    public MVCControllers(Application application, final WebView webView) {
+    public MVCControllers(StorageConnection storageConnection) {
 
-        this.application = application;
-
-        serviceConnection = new ServiceConnection(webView.getContext(), this.application.messagingServicePreferences().getUrl(), this.application.messagingServicePreferences().getUsername(), this.application.messagingServicePreferences().getPassword(), "ServiceTracker",
-                new ServiceConnection.MessageListener() {
-                    @Override
-                    public void onMessageArrived(String message) {
-                        try {
-                            final ActivityRecordMessage activityRecord = new ActivityRecordMessage(nextId, new JSONObject(message));
-                            records.put(nextId, activityRecord);
-                            nextId += 1;
-                            webView.loadUrl("javascript:WebApi.NotificationService.newRecord(\'" + activityRecord.toJSON().toString() + "\')");
-                        } catch (JSONException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
-
+        this.storageConnection = storageConnection;
     }
 
     public String get(String url) throws Exception {
         String[] tokens = url.split("/");
         if (tokens[0].equals("activities")) {
             JSONArray result = new JSONArray();
-            for (HashMap.Entry<Integer, ActivityRecordMessage> record : records.entrySet()) {
+            for (HashMap.Entry<Integer, ActivityRecordMessage> record : storageConnection.get()) {
                 result.put(record.getValue().toJSON());
             }
             return result.toString();
@@ -55,7 +37,7 @@ public class MVCControllers {
         if (tokens[0].equals("activity")) {
             if (tokens.length < 2)
                 throw new Exception("Invalid REST request: activityRecord id missing");
-            return records.get(Integer.parseInt(tokens[1])).getPayload().toString();
+            return storageConnection.get(Integer.parseInt(tokens[1])).getPayload().toString();
         }
         throw new Exception("Invalid REST request: unknown controller '" + tokens[0] + "'");
     }
@@ -65,8 +47,9 @@ public class MVCControllers {
         if (tokens[0].equals("activity")) {
             if (tokens.length < 2)
                 throw new Exception("Invalid REST request: activityRecord id missing");
-            records.get(Integer.parseInt(tokens[1])).setPayload(new JSONObject(post));
-            serviceConnection.send(post);
+//            storageConnection.get(Integer.parseInt(tokens[1])).setPayload(new JSONObject(post));
+            storageConnection.save(Integer.parseInt(tokens[1]), new JSONObject(post));
+//            serviceConnection.send(post);
             return post;
         }
         throw new Exception("Invalid REST request: unknown controller '" + tokens[0] + "'");

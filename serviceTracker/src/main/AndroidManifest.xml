@@ -8,7 +8,7 @@
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name" >
         <activity
-            android:name="com.hill30.android.serviceTracker.Container"
+            android:name=".activities.Container"
             android:label="@string/app_name"
             android:theme="@style/AppTheme" >
             <intent-filter>
@@ -21,6 +21,7 @@
 
         <service android:name="com.hill30.android.mqttClient.Service" />
         <service android:name=".services.MessagePersistenceService" />
+        <service android:name=".activityRecordStorage.Storage" />
 
     </application>
 

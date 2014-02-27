@@ -1,5 +1,6 @@
 package com.hill30.android.mqttClient;
 
+import android.app.ActivityManager;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -22,9 +23,22 @@ public class ServiceConnection implements android.content.ServiceConnection {
         void onMessageArrived(String message);
     }
 
+    private static void startIfNecessary(Context context, Class serviceClass) {
+        ActivityManager manager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return;
+            }
+        }
+        context.startService(new Intent(context, serviceClass));
+    }
+
     public ServiceConnection(Context context, String brokerUrl, String userName, String password, String topic, MessageListener messageListener) {
         this.context = context;
         this.messageListener = messageListener;
+
+        startIfNecessary(context, Service.class);
+
         // todo: validate topic for illegal characters - it is important for matching incoming message to the recipients (see Connection.java)
         context.bindService(
                 new Intent(context, Service.class)

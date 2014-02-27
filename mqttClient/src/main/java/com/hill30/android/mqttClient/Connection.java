@@ -3,6 +3,7 @@ package com.hill30.android.mqttClient;
 import android.content.res.AssetManager;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.Message;
 import android.util.Log;
 
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
@@ -56,6 +57,16 @@ public class Connection extends Handler
             subscribe(topic);
     }
 
+    @Override
+    public void handleMessage(Message msg) {
+        super.handleMessage(msg);
+        try {
+            connectIfNecessary();
+        } catch (MqttException e) {
+            e.printStackTrace();
+        }
+    }
+
     public boolean connectIfNecessary() throws MqttException {
 
         // There was no call to connect yet - we do not know what to connect to
@@ -93,6 +104,7 @@ public class Connection extends Handler
                     @Override
                     public void connectionLost(Throwable cause) {
                         Log.e(TAG, "Connection lost. Cause: " + cause.toString());
+                        cause.printStackTrace();
                         mqttClient = null;
                         service.onConnectFailure();
 

@@ -24,7 +24,9 @@ public class Service extends android.app.Service {
     public static final String USER_NAME = "com.hill30.android.mqttClient.user-name";
     public static final String PASSWORD = "com.hill30.android.mqttClient.password";
     public static final String TOPIC_NAME = "com.hill30.android.mqttClient.topic-name";
+    public static final String RECONNECT = "com.hill30.android.mqttClient.reconnect";
     public static final String CONNECTION_RETRY_INTERVAL = "com.hill30.android.mqttClient.connection_retry_interval";
+    public static final int RESTART = 1;
 
     private Connection connection;
     private Timer reconnectTimer = new Timer();
@@ -46,12 +48,18 @@ public class Service extends android.app.Service {
     };
     private boolean networkAvailable = false;
 
+    private BroadcastReceiver messagingServiceCommandReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            connection.sendEmptyMessage(RESTART);
+        }
+    };
+
     @Override
     public void onCreate() {
         HandlerThread connectionThread = new HandlerThread("mqttConnection", android.os.Process.THREAD_PRIORITY_BACKGROUND);
         connectionThread.start();
 
-        // todo: should the below be run on the connectionThread?
         connection = new Connection(connectionThread.getLooper(), this);
 
         registerReceiver(networkStatusReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
@@ -60,8 +68,9 @@ public class Service extends android.app.Service {
 
     @Override
     public void onDestroy() {
-        super.onDestroy();
+        // todo: implement connection disconnect
         unregisterReceiver(networkStatusReceiver);
+        super.onDestroy();
     }
 
     public void onConnectFailure() {

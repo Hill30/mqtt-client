@@ -37,9 +37,18 @@ public class SettingsActivity extends ActionBarActivity {
         btnSave.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                application().messagingServicePreferences().saveUrl(txtUrl.getText().toString().trim());
-                application().messagingServicePreferences().saveUsername(txtUsername.getText().toString().trim());
-                application().messagingServicePreferences().savePassword(txtPassword.getText().toString().trim());
+
+                String brokerURL = txtUrl.getText().toString().trim();
+                String username = txtUsername.getText().toString().trim();
+                String password = txtPassword.getText().toString().trim();
+
+                application().messagingServicePreferences().saveUrl(brokerURL);
+                application().messagingServicePreferences().saveUsername(username);
+                application().messagingServicePreferences().savePassword(password);
+
+//                sendBroadcast();
+
+
 
                 finish();
             }

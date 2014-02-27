@@ -1,4 +1,4 @@
-package com.hill30.android.serviceTracker;
+package com.hill30.android.serviceTracker.activities;
 
 import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
@@ -12,15 +12,21 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import com.hill30.android.serviceTracker.activities.SettingsActivity;
+import com.hill30.android.serviceTracker.MVCControllers;
+import com.hill30.android.serviceTracker.R;
+import com.hill30.android.serviceTracker.activityRecordStorage.StorageConnection;
 import com.hill30.android.serviceTracker.common.Application;
+import com.hill30.android.serviceTracker.entities.ActivityRecordMessage;
 import com.hill30.android.serviceTracker.services.MessagePersistenceService;
+
+import org.json.JSONException;
 
 public class Container extends ActionBarActivity {
 
     private static final String TAG = "**WEBVIEW**";
 
     private WebView webView;
+    private StorageConnection storageConnection;
 
     private Application application(){
         return (Application) getApplication();
@@ -30,9 +36,6 @@ public class Container extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_container);
-
-        Intent serviceIntent = new Intent(Container.this, MessagePersistenceService.class);
-        startService(serviceIntent);
 
         webView = (WebView) findViewById(R.id.webView);
         webView.requestFocus();
@@ -75,6 +78,19 @@ public class Container extends ActionBarActivity {
             }
         });
 
+        storageConnection = new StorageConnection(this, new StorageConnection.MessageListener() {
+            @Override
+            public void onNewActivityRecord(int id, ActivityRecordMessage activityRecord) {
+                try {
+                    webView.loadUrl("javascript:WebApi.NotificationService.newRecord(\'" + activityRecord.toJSON().toString() + "\')");
+                } catch (JSONException e) {
+                    e.printStackTrace();
+                }
+            }
+        });
+
+        webView.addJavascriptInterface(new MVCControllers(storageConnection), "WebApi");
+
     }
 
     @Override
@@ -83,8 +99,16 @@ public class Container extends ActionBarActivity {
         if(!application().messagingServicePreferences().isValid()){
             startActivity(new Intent(Container.this, SettingsActivity.class));
         } else {
-            webView.addJavascriptInterface(new MVCControllers(application(), webView), "WebApi");
             webView.loadUrl("file:///android_asset/application/index.html");
+            storageConnection.bind();
+        }
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        if (storageConnection != null) {
+            storageConnection.unbind();
         }
     }
 
