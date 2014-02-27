@@ -1,7 +1,5 @@
 package com.hill30.android.serviceTracker;
 
-import android.content.BroadcastReceiver;
-import android.content.Context;
 import android.content.Intent;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -13,17 +11,10 @@ import android.webkit.JsResult;
 import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
-import android.widget.Toast;
 
-import com.hill30.android.mqttClient.ServiceConnection;
 import com.hill30.android.serviceTracker.activities.SettingsActivity;
 import com.hill30.android.serviceTracker.common.Application;
-import com.hill30.android.serviceTracker.entities.ActivityRecordMessage;
-
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.HashMap;
+import com.hill30.android.serviceTracker.services.MessagePersistenceService;
 
 public class Container extends ActionBarActivity {
 
@@ -39,6 +30,9 @@ public class Container extends ActionBarActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_container);
+
+        Intent serviceIntent = new Intent(Container.this, MessagePersistenceService.class);
+        startService(serviceIntent);
 
         webView = (WebView) findViewById(R.id.webView);
         webView.requestFocus();
