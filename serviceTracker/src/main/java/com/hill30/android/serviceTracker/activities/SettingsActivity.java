@@ -40,7 +40,13 @@ public class SettingsActivity extends ActionBarActivity {
                 application().messagingServicePreferences().saveUsername(username);
                 application().messagingServicePreferences().savePassword(password);
 
-                sendBroadcast(new Intent(Service.SERVICE_COMMAND).putExtra(Service.SERVICE_COMMAND, Service.RESTART));
+                sendBroadcast(
+                        new Intent(Service.SERVICE_COMMAND)
+                                .putExtra(Service.SERVICE_COMMAND, Service.RESTART)
+                                .putExtra(Service.BROKER_URL, brokerURL)
+                                .putExtra(Service.USER_NAME, username)
+                                .putExtra(Service.PASSWORD, password)
+                );
 
                 finish();
             }

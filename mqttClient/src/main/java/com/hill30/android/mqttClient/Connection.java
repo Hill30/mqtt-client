@@ -1,5 +1,6 @@
 package com.hill30.android.mqttClient;
 
+import android.content.Intent;
 import android.content.res.AssetManager;
 import android.os.Handler;
 import android.os.Looper;
@@ -268,4 +269,17 @@ public class Connection extends Handler
         }
     }
 
+    public void executeCommand(Intent intent) {
+        int command = intent.getIntExtra(Service.SERVICE_COMMAND, -1);
+        switch (command) {
+            case Service.RESTART:
+                brokerUrl = intent.getStringExtra(Service.BROKER_URL);
+                userName = intent.getStringExtra(Service.USER_NAME);
+                password = intent.getStringExtra(Service.PASSWORD);
+                break;
+            default:
+                break;
+        }
+        sendEmptyMessage(command);
+    }
 }

@@ -48,10 +48,9 @@ public class Service extends android.app.Service {
     private BroadcastReceiver messagingServiceCommandReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            connection.sendEmptyMessage(intent.getIntExtra(Service.SERVICE_COMMAND, -1));
+            connection.executeCommand(intent);
         }
     };
-    private NotificationCompat.Builder notificationBuilder;
 
     @Override
     public void onCreate() {
