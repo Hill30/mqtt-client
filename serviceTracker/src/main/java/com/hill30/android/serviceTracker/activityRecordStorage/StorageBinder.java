@@ -4,14 +4,9 @@ import android.os.Binder;
 
 import com.hill30.android.serviceTracker.entities.ActivityRecordMessage;
 
-import org.json.JSONObject;
-
 import java.util.Map;
 import java.util.Set;
 
-/**
- * Created by mfeingol on 2/27/14.
- */
 public class StorageBinder extends Binder {
     private Storage storage;
     private StorageConnection.MessageListener listener;
@@ -38,7 +33,7 @@ public class StorageBinder extends Binder {
         return storage.get(id);
     }
 
-    public void save(int id, JSONObject record) {
+    public void save(int id, String record) {
         storage.save(id, record);
     }
 

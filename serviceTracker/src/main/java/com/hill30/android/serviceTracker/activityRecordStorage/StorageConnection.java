@@ -7,27 +7,16 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 
-import com.hill30.android.serviceTracker.common.Application;
 import com.hill30.android.serviceTracker.entities.ActivityRecordMessage;
 
-import org.json.JSONException;
-import org.json.JSONObject;
-
-import java.util.Collection;
 import java.util.HashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * Created by mfeingol on 2/27/14.
- */
 public class StorageConnection implements ServiceConnection {
 
     private Context context;
     private MessageListener listener;
-    private int nextId;
-    private HashMap<Integer, ActivityRecordMessage> records;
     private StorageBinder service;
 
     public interface MessageListener {
@@ -77,7 +66,7 @@ public class StorageConnection implements ServiceConnection {
         return service.get(id);
     }
 
-    public void save(int id, JSONObject record) {
+    public void save(int id, String record) {
         service.save(id, record);
     }
 }

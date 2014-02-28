@@ -11,14 +11,10 @@ import com.hill30.android.serviceTracker.entities.ActivityRecordMessage;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.util.Collection;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-/**
- * Created by mfeingol on 2/27/14.
- */
 public class Storage extends Service {
 
     private ServiceConnection serviceConnection;
@@ -76,7 +72,12 @@ public class Storage extends Service {
         return records.get(id);
     }
 
-    public void save(int id, JSONObject payload) {
-        records.get(id).setPayload(payload);
+    public void save(int id, String payload) {
+        try {
+            records.get(id).setPayload(new JSONObject(payload));
+            serviceConnection.send(payload);
+        } catch (JSONException e) {
+            e.printStackTrace();
+        }
     }
 }

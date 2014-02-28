@@ -1,21 +1,12 @@
 package com.hill30.android.serviceTracker;
 
-import android.webkit.WebView;
-
-import com.hill30.android.mqttClient.ServiceConnection;
 import com.hill30.android.serviceTracker.activityRecordStorage.StorageConnection;
-import com.hill30.android.serviceTracker.common.Application;
 import com.hill30.android.serviceTracker.entities.ActivityRecordMessage;
 
 import org.json.JSONArray;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 import java.util.HashMap;
 
-/**
- * Created by mfeingol on 2/24/14.
- */
 public class MVCControllers {
 
     private StorageConnection storageConnection;
@@ -47,9 +38,7 @@ public class MVCControllers {
         if (tokens[0].equals("activity")) {
             if (tokens.length < 2)
                 throw new Exception("Invalid REST request: activityRecord id missing");
-//            storageConnection.get(Integer.parseInt(tokens[1])).setPayload(new JSONObject(post));
-            storageConnection.save(Integer.parseInt(tokens[1]), new JSONObject(post));
-//            serviceConnection.send(post);
+            storageConnection.save(Integer.parseInt(tokens[1]), post);
             return post;
         }
         throw new Exception("Invalid REST request: unknown controller '" + tokens[0] + "'");
