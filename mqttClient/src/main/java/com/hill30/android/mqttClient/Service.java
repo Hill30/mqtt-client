@@ -1,5 +1,6 @@
 package com.hill30.android.mqttClient;
 
+import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -7,6 +8,7 @@ import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.os.HandlerThread;
 import android.os.IBinder;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import org.eclipse.paho.client.mqttv3.MqttException;
@@ -54,6 +56,7 @@ public class Service extends android.app.Service {
             connection.sendEmptyMessage(RESTART);
         }
     };
+    private NotificationCompat.Builder notificationBuilder;
 
     @Override
     public void onCreate() {
@@ -73,8 +76,8 @@ public class Service extends android.app.Service {
         super.onDestroy();
     }
 
-    public void onConnectFailure() {
-        // todo: do something smarter about onConnectFailure attempts
+    public void onConnectionLost() {
+        // todo: do something smarter about onConnectionLost attempts
         if (networkAvailable) {
             Log.e(TAG, String.format("Connection failure. Reconnecting in %d sec.", retry_interval/1000));
             reconnectTimer.schedule(new TimerTask() {

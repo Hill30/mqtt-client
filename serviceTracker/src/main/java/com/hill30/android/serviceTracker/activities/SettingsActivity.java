@@ -3,7 +3,6 @@ package com.hill30.android.serviceTracker.activities;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.View;
-import android.widget.Button;
 import android.widget.EditText;
 
 import com.hill30.android.serviceTracker.R;
@@ -14,7 +13,6 @@ public class SettingsActivity extends ActionBarActivity {
     private EditText txtUrl;
     private EditText txtUsername;
     private EditText txtPassword;
-    private Button btnSave;
 
     private Application application(){
         return (Application) getApplication();
@@ -28,9 +26,7 @@ public class SettingsActivity extends ActionBarActivity {
         txtUrl = (EditText) findViewById(R.id.txtUrl);
         txtUsername = (EditText) findViewById(R.id.txtUsername);
         txtPassword = (EditText) findViewById(R.id.txtPassword);
-        btnSave = (Button) findViewById(R.id.btnSave);
-
-        btnSave.setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.btnSave).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
@@ -43,7 +39,6 @@ public class SettingsActivity extends ActionBarActivity {
                 application().messagingServicePreferences().savePassword(password);
 
 //                sendBroadcast();
-
 
 
                 finish();

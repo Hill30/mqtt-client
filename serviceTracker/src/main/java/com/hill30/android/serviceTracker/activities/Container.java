@@ -1,8 +1,8 @@
 package com.hill30.android.serviceTracker.activities;
 
 import android.content.Intent;
-import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.app.ActionBarActivity;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -17,7 +17,6 @@ import com.hill30.android.serviceTracker.R;
 import com.hill30.android.serviceTracker.activityRecordStorage.StorageConnection;
 import com.hill30.android.serviceTracker.common.Application;
 import com.hill30.android.serviceTracker.entities.ActivityRecordMessage;
-import com.hill30.android.serviceTracker.services.MessagePersistenceService;
 
 import org.json.JSONException;
 

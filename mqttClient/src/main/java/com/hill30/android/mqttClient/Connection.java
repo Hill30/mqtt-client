@@ -29,6 +29,7 @@ import java.util.Properties;
 public class Connection extends Handler
 {
     public static final String TAG = "MQTT Connection";
+    private final Notification notification;
     private MqttAsyncClient mqttClient;
     private HashMap<String, ConnectionBinder> recipients = new HashMap<String, ConnectionBinder>();
     private MessageStash stash;
@@ -45,6 +46,9 @@ public class Connection extends Handler
         super(looper);
         this.service = service;
         stash = new MessageStash(service.getApplicationContext().getFilesDir().getPath());
+
+        notification = new Notification(service);
+
     }
 
     public void connect(final ConnectionBinder connectionBinder, String brokerUrl, String userName, String password, final String topic) throws MqttException {
@@ -106,8 +110,8 @@ public class Connection extends Handler
                         Log.e(TAG, "Connection lost. Cause: " + cause.toString());
                         cause.printStackTrace();
                         mqttClient = null;
-                        service.onConnectFailure();
-
+                        service.onConnectionLost();
+                        notification.updateStatus(Notification.STATUS_DISCONNECTED);
                     }
 
                     @Override
@@ -133,6 +137,8 @@ public class Connection extends Handler
 
             connecting = true;
 
+
+            notification.updateStatus(Notification.STATUS_CONNECTING);
             mqttClient.connect(connectionOptions, null, new IMqttActionListener() {
                 @Override
                 public void onSuccess(IMqttToken asyncActionToken) {
@@ -140,14 +146,15 @@ public class Connection extends Handler
                     Log.d(TAG, "connected");
                     for (Map.Entry<String, ConnectionBinder> binder : recipients.entrySet())
                         subscribe(binder.getKey());
+                    notification.updateStatus(Notification.STATUS_CONNECTED);
                 }
 
                 @Override
                 public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
                     connecting = false;
-                    // todo: onConnectFailure only on recoverable exceptions
+                    // todo: onConnectionLost only on recoverable exceptions
                     Log.e(TAG, "Failed to connect :" + exception.toString());
-                    service.onConnectFailure();
+                    service.onConnectionLost();
                 }
             });
             return false;
@@ -183,6 +190,12 @@ public class Connection extends Handler
     }
 
     public void unregisterSubscriber(String topic) {
+        if (mqttClient.isConnected())
+            try {
+                mqttClient.unsubscribe(topic);
+            } catch (MqttException e) {
+                e.printStackTrace();
+            }
         recipients.remove(topic);
     }
 

@@ -17,11 +17,10 @@ import java.util.Set;
 
 public class Storage extends Service {
 
-    private ServiceConnection serviceConnection;
-
     public HashMap<Integer, ActivityRecordMessage> records = new HashMap<Integer, ActivityRecordMessage>();
     private int nextId = 0;
     private StorageBinder storageBinder;
+    private ServiceConnection serviceConnection;
 
     private Application application() {
         return (Application)getApplication();
@@ -38,12 +37,12 @@ public class Storage extends Service {
 
         storageBinder = new StorageBinder(this);
 
-        serviceConnection = new com.hill30.android.mqttClient.ServiceConnection(this,
+        serviceConnection = new ServiceConnection(this,
                 application().messagingServicePreferences().getUrl(),
                 application().messagingServicePreferences().getUsername(),
                 application().messagingServicePreferences().getPassword(),
                 "ServiceTracker",
-                new com.hill30.android.mqttClient.ServiceConnection.MessageListener() {
+                new ServiceConnection.MessageListener() {
 
                     @Override
                     public void onMessageArrived(String message) {

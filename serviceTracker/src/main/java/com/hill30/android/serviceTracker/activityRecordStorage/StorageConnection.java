@@ -9,10 +9,14 @@ import android.os.IBinder;
 
 import com.hill30.android.serviceTracker.entities.ActivityRecordMessage;
 
-import java.util.HashMap;
+import org.json.JSONObject;
+
 import java.util.Map;
 import java.util.Set;
 
+/**
+ * Created by mfeingol on 2/27/14.
+ */
 public class StorageConnection implements ServiceConnection {
 
     private Context context;
