@@ -1,6 +1,5 @@
 package com.hill30.android.mqttClient;
 
-import android.app.NotificationManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -16,9 +15,6 @@ import org.eclipse.paho.client.mqttv3.MqttException;
 import java.util.Timer;
 import java.util.TimerTask;
 
-/**
- * Created by michaelfeingold on 2/5/14.
- */
 public class Service extends android.app.Service {
 
     public static final String TAG = "MQTT Service";
@@ -26,9 +22,8 @@ public class Service extends android.app.Service {
     public static final String USER_NAME = "com.hill30.android.mqttClient.user-name";
     public static final String PASSWORD = "com.hill30.android.mqttClient.password";
     public static final String TOPIC_NAME = "com.hill30.android.mqttClient.topic-name";
-    public static final String RECONNECT = "com.hill30.android.mqttClient.reconnect";
-    public static final String CONNECTION_RETRY_INTERVAL = "com.hill30.android.mqttClient.connection_retry_interval";
     public static final int RESTART = 1;
+    public static final String SERVICE_COMMAND = "com.hill30.android.mqttClient.service-command";
 
     private Connection connection;
     private Timer reconnectTimer = new Timer();
@@ -53,7 +48,7 @@ public class Service extends android.app.Service {
     private BroadcastReceiver messagingServiceCommandReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
-            connection.sendEmptyMessage(RESTART);
+            connection.sendEmptyMessage(intent.getIntExtra(Service.SERVICE_COMMAND, -1));
         }
     };
     private NotificationCompat.Builder notificationBuilder;
@@ -66,6 +61,7 @@ public class Service extends android.app.Service {
         connection = new Connection(connectionThread.getLooper(), this);
 
         registerReceiver(networkStatusReceiver, new IntentFilter(ConnectivityManager.CONNECTIVITY_ACTION));
+        registerReceiver(messagingServiceCommandReceiver, new IntentFilter(Service.SERVICE_COMMAND));
 
     }
 
@@ -73,6 +69,7 @@ public class Service extends android.app.Service {
     public void onDestroy() {
         // todo: implement connection disconnect
         unregisterReceiver(networkStatusReceiver);
+        unregisterReceiver(messagingServiceCommandReceiver);
         super.onDestroy();
     }
 

@@ -1,10 +1,12 @@
 package com.hill30.android.serviceTracker.activities;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.support.v7.app.ActionBarActivity;
 import android.view.View;
 import android.widget.EditText;
 
+import com.hill30.android.mqttClient.Service;
 import com.hill30.android.serviceTracker.R;
 import com.hill30.android.serviceTracker.common.Application;
 
@@ -38,8 +40,7 @@ public class SettingsActivity extends ActionBarActivity {
                 application().messagingServicePreferences().saveUsername(username);
                 application().messagingServicePreferences().savePassword(password);
 
-//                sendBroadcast();
-
+                sendBroadcast(new Intent(Service.SERVICE_COMMAND).putExtra(Service.SERVICE_COMMAND, Service.RESTART));
 
                 finish();
             }

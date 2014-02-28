@@ -155,6 +155,7 @@ public class Connection extends Handler
                     // todo: onConnectionLost only on recoverable exceptions
                     Log.e(TAG, "Failed to connect :" + exception.toString());
                     service.onConnectionLost();
+                    notification.updateStatus(Notification.STATUS_DISCONNECTED);
                 }
             });
             return false;
