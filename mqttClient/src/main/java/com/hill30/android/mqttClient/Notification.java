@@ -1,7 +1,9 @@
 package com.hill30.android.mqttClient;
 
 import android.app.NotificationManager;
+import android.app.PendingIntent;
 import android.content.Context;
+import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
 
 /**
@@ -23,6 +25,8 @@ public class Notification {
         notificationBuilder.setSmallIcon(R.drawable.network_connecting_icon);
         notificationBuilder.setContentTitle("Title");
         notificationBuilder.setContentText("Some Text");
+        PendingIntent pi = PendingIntent.getBroadcast(context, 0, new Intent(), PendingIntent.FLAG_UPDATE_CURRENT);
+        notificationBuilder.setContentIntent(pi);
 
         showNotification();
 
