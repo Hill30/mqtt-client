@@ -308,6 +308,7 @@ public class Connection extends Handler
                             !userName.equals(prefs.getUsername())
                     ) {
                         brokerUrl = prefs.getUrl();
+                        // todo: changing username requires more cleanup - it changes topic name
                         userName = prefs.getUsername();
                         try {
                             mqttClient.close();
