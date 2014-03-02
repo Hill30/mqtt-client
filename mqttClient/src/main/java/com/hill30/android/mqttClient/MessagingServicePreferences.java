@@ -1,23 +1,24 @@
-package com.hill30.android.serviceTracker.persistence.preferences;
+package com.hill30.android.mqttClient;
 
-import com.hill30.android.serviceTracker.common.Application;
+import android.app.Application;
+import android.content.Context;
+import android.content.SharedPreferences;
 
-/**
- * Created by azavarin on 2/25/14.
- */
-public class MessagingServicePreferences extends BasePreferencesStorage {
+public class MessagingServicePreferences {
 
-    private static final String URL = "com.hill30.android.serviceTracker.persistence.preferences.MessagingServicePreferences.URL";
-    private static final String USERNAME = "com.hill30.android.serviceTracker.persistence.preferences.MessagingServicePreferences.USERNAME";
-    private static final String PASSWORD = "com.hill30.android.serviceTracker.persistence.preferences.MessagingServicePreferences.PASSWORD";
+    private static final String URL = "com.hill30.android.mqttClient.MessagingServicePreferences.URL";
+    private static final String USERNAME = "com.hill30.android.mqttClient.MessagingServicePreferences.USERNAME";
+    private static final String PASSWORD = "com.hill30.android.mqttClient.MessagingServicePreferences.PASSWORD";
+    private static final String PREFERENCES = "com.hill30.android.mqttClient.MessagingServicePreferences";
+
+    private Application application;
 
     public MessagingServicePreferences(Application application) {
-        super(application);
+        this.application = application;
     }
 
-    @Override
-    protected String getPrefsName() {
-        return "com.hill30.android.serviceTracker.persistence.preferences.MessagingServicePreferences";
+    protected SharedPreferences getPreferences() {
+        return application.getSharedPreferences(PREFERENCES, Context.MODE_PRIVATE);
     }
 
     public boolean isValid() {

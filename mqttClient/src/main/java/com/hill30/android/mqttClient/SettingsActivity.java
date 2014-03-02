@@ -1,29 +1,24 @@
-package com.hill30.android.serviceTracker.activities;
+package com.hill30.android.mqttClient;
 
+import android.app.Activity;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.v7.app.ActionBarActivity;
 import android.view.View;
 import android.widget.EditText;
 
-import com.hill30.android.mqttClient.Service;
-import com.hill30.android.serviceTracker.R;
-import com.hill30.android.serviceTracker.common.Application;
-
-public class SettingsActivity extends ActionBarActivity {
+public class SettingsActivity extends Activity {
 
     private EditText txtUrl;
     private EditText txtUsername;
     private EditText txtPassword;
-
-    private Application application(){
-        return (Application) getApplication();
-    }
+    private MessagingServicePreferences prefs;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_settings);
+
+        prefs = new MessagingServicePreferences(getApplication());
 
         txtUrl = (EditText) findViewById(R.id.txtUrl);
         txtUsername = (EditText) findViewById(R.id.txtUsername);
@@ -36,16 +31,13 @@ public class SettingsActivity extends ActionBarActivity {
                 String username = txtUsername.getText().toString().trim();
                 String password = txtPassword.getText().toString().trim();
 
-                application().messagingServicePreferences().saveUrl(brokerURL);
-                application().messagingServicePreferences().saveUsername(username);
-                application().messagingServicePreferences().savePassword(password);
+                prefs.saveUrl(brokerURL);
+                prefs.saveUsername(username);
+                prefs.savePassword(password);
 
                 sendBroadcast(
                         new Intent(Service.SERVICE_COMMAND)
                                 .putExtra(Service.SERVICE_COMMAND, Service.RESTART)
-                                .putExtra(Service.BROKER_URL, brokerURL)
-                                .putExtra(Service.USER_NAME, username)
-                                .putExtra(Service.PASSWORD, password)
                 );
 
                 finish();
@@ -57,14 +49,14 @@ public class SettingsActivity extends ActionBarActivity {
     protected void onResume() {
         super.onResume();
 
-        if(!application().messagingServicePreferences().isValid()){
+        if(!prefs.isValid()){
             txtUrl.setText("tcp://217.119.26.211:1883");
             txtUsername.setText("userName");
             txtPassword.setText("password");
         } else {
-            txtUrl.setText(application().messagingServicePreferences().getUrl());
-            txtUsername.setText(application().messagingServicePreferences().getUsername());
-            txtPassword.setText(application().messagingServicePreferences().getPassword());
+            txtUrl.setText(prefs.getUrl());
+            txtUsername.setText(prefs.getUsername());
+            txtPassword.setText(prefs.getPassword());
         }
     }
 }

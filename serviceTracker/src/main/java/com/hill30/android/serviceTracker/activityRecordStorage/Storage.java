@@ -37,11 +37,7 @@ public class Storage extends Service {
 
         storageBinder = new StorageBinder(this);
 
-        serviceConnection = new ServiceConnection(this,
-                application().messagingServicePreferences().getUrl(),
-                application().messagingServicePreferences().getUsername(),
-                application().messagingServicePreferences().getPassword(),
-                "ServiceTracker",
+        serviceConnection = new ServiceConnection(this, "ServiceTracker",
                 new ServiceConnection.MessageListener() {
 
                     @Override

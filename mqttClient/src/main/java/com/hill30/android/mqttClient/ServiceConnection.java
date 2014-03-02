@@ -16,9 +16,6 @@ public class ServiceConnection implements android.content.ServiceConnection {
     private Context context;
     private MessageListener messageListener;
 
-    public static final String MESSAGE_ARRIVED = "com.hill30.android.mqttClient.message_arrived";
-    public static final String MESSAGE_PAYLOAD = "com.hill30.android.mqttClient.message_payload";
-
     public interface MessageListener {
         void onMessageArrived(String message);
     }
@@ -33,7 +30,7 @@ public class ServiceConnection implements android.content.ServiceConnection {
         context.startService(new Intent(context, serviceClass));
     }
 
-    public ServiceConnection(Context context, String brokerUrl, String userName, String password, String topic, MessageListener messageListener) {
+    public ServiceConnection(Context context, String topic, MessageListener messageListener) {
         this.context = context;
         this.messageListener = messageListener;
 
@@ -42,9 +39,6 @@ public class ServiceConnection implements android.content.ServiceConnection {
         // todo: validate topic for illegal characters - it is important for matching incoming message to the recipients (see Connection.java)
         context.bindService(
                 new Intent(context, Service.class)
-                        .putExtra(Service.BROKER_URL, brokerUrl)
-                        .putExtra(Service.USER_NAME, userName)
-                        .putExtra(Service.PASSWORD, password)
                         .putExtra(Service.TOPIC_NAME, topic),
                 this, Context.BIND_AUTO_CREATE);
     }

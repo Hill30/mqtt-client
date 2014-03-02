@@ -12,6 +12,7 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import com.hill30.android.mqttClient.SettingsActivity;
 import com.hill30.android.serviceTracker.MVCControllers;
 import com.hill30.android.serviceTracker.R;
 import com.hill30.android.serviceTracker.activityRecordStorage.StorageConnection;
@@ -95,12 +96,8 @@ public class Container extends ActionBarActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        if(!application().messagingServicePreferences().isValid()){
-            startActivity(new Intent(Container.this, SettingsActivity.class));
-        } else {
-            webView.loadUrl("file:///android_asset/application/index.html");
-            storageConnection.bind();
-        }
+        storageConnection.bind();
+        webView.loadUrl("file:///android_asset/application/index.html");
     }
 
     @Override

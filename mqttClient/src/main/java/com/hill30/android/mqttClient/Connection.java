@@ -52,14 +52,33 @@ public class Connection extends Handler
 
     }
 
-    public void connect(final ConnectionBinder connectionBinder, String brokerUrl, String userName, String password, final String topic) throws MqttException {
-        this.brokerUrl = brokerUrl;
-        this.userName = userName;
-        this.password = password;
+    private String getInboundTopic(String topic) {
+        return topic + "/Inbound/" + userName;
+    }
 
-        recipients.put(topic, connectionBinder);
-        if (connectIfNecessary())
-            subscribe(topic);
+    private String getOutboundTopic(String topic) {
+        return topic + "/Outbound";
+    }
+
+    public void connect(ConnectionBinder connectionBinder, final String topic) throws MqttException {
+
+        MessagingServicePreferences prefs = new MessagingServicePreferences(service.getApplication());
+
+        if (prefs.isValid()) {
+            brokerUrl = prefs.getUrl();
+            userName = prefs.getUsername();
+            password = prefs.getPassword();
+
+            String inboundTopic = getInboundTopic(topic);
+            recipients.put(inboundTopic, connectionBinder);
+
+            if (connectIfNecessary())
+                subscribe(inboundTopic);
+        } else
+            // the actual connection will happen on save prefs
+            service.startActivity(new Intent(service, SettingsActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+
+
     }
 
     @Override
@@ -138,7 +157,6 @@ public class Connection extends Handler
 
             connecting = true;
 
-
             notification.updateStatus(Notification.STATUS_CONNECTING);
             mqttClient.connect(connectionOptions, null, new IMqttActionListener() {
                 @Override
@@ -166,7 +184,6 @@ public class Connection extends Handler
     private void subscribe(final String topic) {
 
         try {
-
             //TODO: should this be moved to after subscribe-success?
             for (MessageStash.Message message : stash.get()) {
                 send(message.topic, message.body);
@@ -192,18 +209,24 @@ public class Connection extends Handler
     }
 
     public void unregisterSubscriber(String topic) {
+
+        String inboundTopic = getInboundTopic(topic);
+
         if (mqttClient.isConnected())
             try {
-                mqttClient.unsubscribe(topic);
+                mqttClient.unsubscribe(inboundTopic);
             } catch (MqttException e) {
                 e.printStackTrace();
             }
-        recipients.remove(topic);
+        recipients.remove(inboundTopic);
     }
 
     public void send(String topic, String message) {
+
+        String outboundTopic = getOutboundTopic(topic);
+
         try {
-            mqttClient.publish(topic, message.getBytes(), 2, true);
+            mqttClient.publish(outboundTopic, message.getBytes(), 2, true);
             Log.d(TAG, "published :" + message);
         } catch (MqttException e) {
             switch (e.getReasonCode()) {
@@ -211,7 +234,7 @@ public class Connection extends Handler
                 // it seems likely that REASON_CODE_CLIENT_DISCONNECTING should also be here
                 // I am not 100% sure, but I've seen a message 'Publish of blah failed ' with this reason code
                 case MqttException.REASON_CODE_CLIENT_NOT_CONNECTED:
-                    stash.put(topic, message);   // stash it for when the connection comes online;
+                    stash.put(outboundTopic, message);   // stash it for when the connection comes online;
                     break;
                 default:
                     Log.d(TAG, "Publish of " + message + " failed :" + e.toString());
@@ -222,7 +245,7 @@ public class Connection extends Handler
 
     private Properties getSSLProperties(String keyStoreFile, String keyStorePswd, String trustStoreFile, String trustStorePswd )
     {
-        // Key and Trust stored are copied from Assets to make access to their paths.
+        // Key and Trust stores are copied from Assets to make possible access to their paths.
         // These Key and Trust store paths are set as connection SSL properties.
         // Key store - for server authenticating client. This is NOT default setting on the broker
         // Trust store - for client authenticating server. This is a must, default setting for SSL.
@@ -273,13 +296,43 @@ public class Connection extends Handler
         int command = intent.getIntExtra(Service.SERVICE_COMMAND, -1);
         switch (command) {
             case Service.RESTART:
-                brokerUrl = intent.getStringExtra(Service.BROKER_URL);
-                userName = intent.getStringExtra(Service.USER_NAME);
-                password = intent.getStringExtra(Service.PASSWORD);
+                if (mqttClient.isConnected())
+                    // connection string can only be changed while disconnected
+                    return;
+
+                MessagingServicePreferences prefs = new MessagingServicePreferences(service.getApplication());
+                if (prefs.isValid()) {
+                    if (
+                            // todo: check if change in password also requires mqttClient recreation
+                            !brokerUrl.equals(prefs.getUrl()) ||
+                            !userName.equals(prefs.getUsername())
+                    ) {
+                        brokerUrl = prefs.getUrl();
+                        userName = prefs.getUsername();
+                        try {
+                            mqttClient.close();
+                        } catch (MqttException e) {
+                            e.printStackTrace();
+                        }
+                        mqttClient = null;
+                        connecting = false;
+                    }
+                    password = prefs.getPassword();
+                    try {
+                        connectIfNecessary();
+                    } catch (MqttException e) {
+                        e.printStackTrace();
+                    }
+                } else {
+                    // the actual connection will happen on save prefs
+                    service.startActivity(new Intent(service, SettingsActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
+                    return;
+                }
                 break;
             default:
                 break;
         }
         sendEmptyMessage(command);
     }
+
 }
