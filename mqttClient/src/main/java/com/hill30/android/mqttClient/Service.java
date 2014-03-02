@@ -7,7 +7,6 @@ import android.content.IntentFilter;
 import android.net.ConnectivityManager;
 import android.os.HandlerThread;
 import android.os.IBinder;
-import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 
 import org.eclipse.paho.client.mqttv3.MqttException;
@@ -28,7 +27,7 @@ public class Service extends android.app.Service {
     private Connection connection;
     private Timer reconnectTimer = new Timer();
 
-    private int retry_interval = 5000; //milliseconds
+    private int retry_interval = 20000; //milliseconds
 
     private BroadcastReceiver networkStatusReceiver = new BroadcastReceiver() {
         @Override
@@ -51,6 +50,7 @@ public class Service extends android.app.Service {
             connection.executeCommand(intent);
         }
     };
+    private boolean scheduled = false;
 
     @Override
     public void onCreate() {
@@ -74,16 +74,23 @@ public class Service extends android.app.Service {
 
     public void onConnectionLost() {
         // todo: do something smarter about onConnectionLost attempts
+        Log.e(TAG, "Connection failure");
         if (networkAvailable) {
+            if (scheduled) {
+                Log.e(TAG, "Retry already scheduled");
+                return;
+            }
+            scheduled = true;
             Log.e(TAG, String.format("Connection failure. Reconnecting in %d sec.", retry_interval/1000));
             reconnectTimer.schedule(new TimerTask() {
                 @Override
                 public void run() {
-                try {
-                    connection.connectIfNecessary();
-                } catch (MqttException e) {
-                    e.printStackTrace();
-                }
+                    try {
+                        connection.connectIfNecessary();
+                        scheduled = false;
+                    } catch (MqttException e) {
+                        e.printStackTrace();
+                    }
                 }
             }, retry_interval);
         } else
