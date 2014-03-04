@@ -7,9 +7,14 @@ body {
 	font-size: 20px;
 }
 
-.activity-list .row,
-.activity-list [class*="col-"] {
-	display: block;
+
+.activity-list .activity-list-heading {
+	font-size: 1.2em;
+	color: #767676;
+	position: relative;
+	padding: 10px 15px;	
+	margin: 0;
+	line-height: 1.42857;
 }
 
 .activity-list > ul {
@@ -20,7 +25,7 @@ body {
 .activity-list > ul > li {
 	text-decoration: none;
 	display: block;
-	padding: 15px 15px 10px 15px;
+	padding: 13px 15px 10px 15px;
 	-moz-transition: all .5s linear;
 	-webkit-transition: all .5s linear;
 	transition: all .5s linear;
@@ -38,16 +43,13 @@ body {
 	width: 100%;
 	height: 1px;	
 	left: 0;
-	background: #aeaeae;
+	background: #ddd;
 }
 
 .activity-list > ul > li:before {
 	top: 0;
 }
 
-.activity-list > ul > li:first-child:before {
-	display: none;	
-}
 
 .activity-list > ul > li:after {
 	bottom: 0;
@@ -55,9 +57,14 @@ body {
 	opacity: 0;
 }
 
+	/*activity-client-name*/
+	.activity-list .activity-client-name {
+		font-size: .9em;
+	}
+	/*!activity-client-name*/
+
 	/*activity-alerts*/
-	.activity-list .activity-alerts {
-		display: block;
+	.activity-list .activity-alerts {		
 		text-align: right;
 		font-size: .7em;
 		color: #009755;
@@ -68,31 +75,37 @@ body {
 
 	.activity-list .activity-alerts .glyphicon {		
 		margin-bottom: .2em;		
-	}
-
-	
+	}	
 	/*!activity-alerts*/
 
 	/*activity-inf*/
 	.activity-list .activity-inf {
 		display: block;
+		padding: .8em 0 0 1em;	
 	}
 
-	.activity-list .activity-inf ul {
-		padding: .5em 0 0 1em;
-		
+	.activity-list .activity-inf .activity-inf-row {
+		display: inline-block;	
 	}
 
-	.activity-list .activity-inf ul li {
-		display: inline-block;		
+	.activity-list .activity-inf .activity-inf-item {
+		display: inline-block;
+		vertical-align: top;
+	}
+
+	.activity-list .activity-inf .activity-inf-item-inn {
 		position: relative;
 		font-size: .7em;
 		margin: 0 2em .5em 0;		
 		line-height: 1em;
-		list-style: none;		
+		list-style: none;	
 	}
 
-	.activity-list .activity-inf ul li:before {
+	.activity-list .activity-inf .activity-inf-item-inn .activity-inf-heading {
+		font-weight: bold;
+	}
+
+	.activity-list .activity-inf .activity-inf-item-inn:before {
 		-webkit-transition: all .5s linear;
 		-moz-transition: all .5s linear;
 		transition: all .5s linear;
@@ -105,6 +118,40 @@ body {
 		top: .3em;
 		left: -.8em;
 	}	
+
+
+	@media (max-width: 767px) {
+		.activity-list .activity-inf .activity-inf-item-wrap {
+			
+			display: table;			
+		}
+
+		.activity-list .activity-inf .activity-inf-row {
+			display: table-row;
+		}
+
+		.activity-list .activity-inf .activity-inf-item {
+			display: table-cell;
+		}
+	}
+
+	@media (max-width: 300px) {
+		.activity-list .activity-alerts .glyphicon {
+			display: block;
+		}
+
+		.activity-list .activity-inf-wrap {
+			width: 80%;
+		}
+
+		.activity-list .activity-alerts-wrap {
+			width: 20%;			
+		}
+
+		.activity-list .activity-inf {
+			padding-left: .5em;
+		}
+	}
 	/*!activity-inf*/
 
 	/*hover*/
@@ -138,8 +185,8 @@ body {
 		/*!activity-alerts*/
 
 		/*activity-inf*/
-		.activity-list  > ul > li:hover .activity-inf ul li:before,
-		.activity-list  > ul > li:hover .activity-inf ul li:before {
+		.activity-list  > ul > li:hover .activity-inf .activity-inf-item-inn:before,
+		.activity-list  > ul > li:hover .activity-inf .activity-inf-item-inn:before {
 			background: #fff;
 			opacity: .7;
 		}
@@ -163,6 +210,8 @@ body {
 	color: #767676;
 	position: relative;
 	padding: 0 0 0 1.5em;
+	margin: 0;
+	line-height: 1.42857;
 }
 
 .activity-details .activity-details-client-name .glyphicon {
@@ -188,26 +237,44 @@ body {
 }
 
 
-@media (min-width: 769px){
+@media (min-width: 992px){
 	.activity-details {
 		width: 70%;
 	}
 }
 
-@media (max-width: 300px) {
+@media (max-width: 769px) {
+
+	
+	.activity-details .control-label {		
+		width: 40%;		
+	}
+
+	.activity-details .input-wrap {
+		width: 60%;
+	}
+
+	
+
+
+}
+
+
+
+@media (max-width: 350px) {
 
 	.activity-details hr {
 		margin: .7em 0;
 	}
 
 	.activity-details .control-label {		
-		width: 60%;
+		width: 50%;
 		padding-top: 5px;
 		font-size: 13px;
 	}
 
 	.activity-details .input-wrap {
-		width: 40%;
+		width: 50%;
 	}
 
 	.activity-details .input-wrap .form-control {
@@ -219,5 +286,19 @@ body {
 	.activity-details .btn {
 		padding: 4px 8px;
 	}
+}
+
+@media (max-width: 250px) {
+
+	
+	.activity-details .control-label {		
+		width: 60%;		
+	}
+
+	.activity-details .input-wrap {
+		width: 40%;
+	}
+
+	
 }
 /*!activity-details*/
