@@ -24,9 +24,6 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Properties;
 
-/**
- * Created by michaelfeingold on 2/5/14.
- */
 public class Connection extends Handler
 {
     public static final String TAG = "MQTT Connection";
@@ -36,7 +33,7 @@ public class Connection extends Handler
     private MessageStash stash;
     private Service service;
     private boolean connecting;
-    private Object synchLock = new Object();
+    private final Object synchLock = new Object();
     private String brokerUrl = null;
     private String userName;
     private String password;
@@ -296,8 +293,8 @@ public class Connection extends Handler
         int command = intent.getIntExtra(Service.SERVICE_COMMAND, -1);
         switch (command) {
             case Service.RESTART:
-                if (mqttClient.isConnected())
-                    // connection string can only be changed while disconnected
+                if (mqttClient == null || mqttClient.isConnected())
+                    // reconnect is possible only if mqttClient is initialized but disconnected
                     return;
 
                 MessagingServicePreferences prefs = new MessagingServicePreferences(service.getApplication());
