@@ -172,57 +172,52 @@ body {
 	color: #007C46;
 }
 
+
 .activity-details .control-label {
 	text-align: right;
 }
 
-@media (min-width: 992px){
+@media (max-width: 767px) {
+  .activity-details .control-label {		
+	padding-right: .2em;
+	}
+
+	.activity-details .input-wrap {
+		padding-left: .2em;
+	}
+}
+
+
+@media (min-width: 769px){
 	.activity-details {
 		width: 70%;
 	}
 }
 
-@media (max-width: 600px){
+@media (max-width: 300px) {
+
+	.activity-details hr {
+		margin: .7em 0;
+	}
+
 	.activity-details .control-label {		
-	padding-right: .2em;
+		width: 60%;
+		padding-top: 5px;
+		font-size: 13px;
 	}
 
-	.activity-details [class*="col-"] {
-		padding-left: .2em;
-	}
-
-	.activity-details .control-label {
+	.activity-details .input-wrap {
 		width: 40%;
 	}
 
-	.activity-details .input-wrap {
-		width: 60%;
-	}
-}
+	.activity-details .input-wrap .form-control {
+		padding: 3px 6px;
+		height: 30px;
 
-@media (max-width: 335px){ 
-	.activity-details .control-label {
-		display: block;
-		float: none;
-		width: auto;
-		text-align: left;
-		padding-right: 15px;
-		padding-left: 15px;
 	}
-	
-	.activity-details .input-wrap {
-		display: block;
-		float: none;
-		width: auto;
-		padding-right: 15px;
-		padding-left: 15px;
+
+	.activity-details .btn {
+		padding: 4px 8px;
 	}
-}
-
-.activity-details .activity-details_item-heading {
-	display: block;
-	text-align: right;
-	font-weight: bold;
-
 }
 /*!activity-details*/

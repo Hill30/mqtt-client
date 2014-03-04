@@ -3,16 +3,16 @@
     <div class="activity-details">
        
 
-        <div class="activity-details-client-name"><span class="glyphicon glyphicon-user"></span> {{record.clientName}}</div>
-        <hr>
+        <div class="activity-details-client-name" ng-show="{{record.clientName}}"><span class="glyphicon glyphicon-user"></span> {{record.clientName}}<!--Name--></div>
+        <hr ng-show="{{record.clientName}}">
 
         
             <form class="form-horizontal" role="form">
 
                 <!--form-group-->
                 <div class="form-group">
-                    <label class="col-xs-3 control-label">Service Date:</label>
-                    <div class="col-xs-9 input-wrap">
+                    <label class="col-xs-6 col-sm-3 control-label">Service Date:</label>
+                    <div class="col-xs-6 col-sm-9 input-wrap">
                         <input type="text" class="form-control" ng-model="record.date">
                     </div>
                 </div>
@@ -20,8 +20,8 @@
 
                 <!--form-group-->
                 <div class="form-group">
-                    <label class="col-xs-3 control-label">Start Time:</label>
-                    <div class="col-xs-9 input-wrap">
+                    <label class="col-xs-6 col-sm-3 control-label">Start Time:</label>
+                    <div class="col-xs-6 col-sm-9 input-wrap">
                         <input type="text" class="form-control" ng-model="record.started">
                     </div>
                 </div>
@@ -29,8 +29,8 @@
 
                 <!--form-group-->
                 <div class="form-group">
-                    <label class="col-xs-3 control-label">End Time:</label>
-                    <div class="col-xs-9 input-wrap">
+                    <label class="col-xs-6 col-sm-3 control-label">End Time:</label>
+                    <div class="col-xs-6 col-sm-9 input-wrap">
                         <input type="text" class="form-control" ng-model="record.ended">
                     </div>
                 </div>
@@ -38,8 +38,8 @@
 
                 <!--form-group-->
                 <div class="form-group">
-                    <label class="col-xs-3 control-label">Duration:</label>
-                    <div class="col-xs-9 input-wrap">
+                    <label class="col-xs-6 col-sm-3 control-label">Duration:</label>
+                    <div class="col-xs-6 col-sm-9 input-wrap">
                         <input type="text" class="form-control">
                     </div>
                 </div>
@@ -47,12 +47,14 @@
 
                 <!--form-group-->
                 <div class="form-group">
-                    <label class="col-xs-3 control-label">Travel Distance:</label>
-                    <div class="col-xs-9 input-wrap">
+                    <label class="col-xs-6 col-sm-3 control-label">Travel Distance:</label>
+                    <div class="col-xs-6 col-sm-9 input-wrap">
                         <input type="text" class="form-control" ng-model="record.distance">
                     </div>
                 </div>
                 <!--/form-group-->
+
+                <hr>
 
                 <!--form-group-->
                 <div class="form-group">
