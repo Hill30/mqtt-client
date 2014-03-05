@@ -212,6 +212,7 @@ body {
 	padding: 0 0 0 1.5em;
 	margin: 0;
 	line-height: 1.42857;
+	min-height: 26px;
 }
 
 .activity-details .activity-details-client-name .glyphicon {
