@@ -3,9 +3,9 @@ if (!window.WebApi)
         get: function(url) {
             switch (url) {
                 case "activities":
-                    return [{id:0, payload: {clientName:'John Smith'}}];
+                    return [{id:0, payload: {clientName:'John Smith', date: '02/10/2014', started: '12:00 pm', ended: '13:00 pm', distance: '20'}}];
                 default:
-                    return {id:0, payload:{clientName:'John Smith'}};
+                    return {id:0, payload:{clientName:'John Smith', date: '02/10/2014', started: '12:00 pm', ended: '13:00 pm', distance: '20'}};
             }
         }
     }
