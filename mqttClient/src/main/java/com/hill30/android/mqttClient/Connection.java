@@ -27,13 +27,18 @@ import java.util.Properties;
 public class Connection extends Handler
 {
     public static final String TAG = "MQTT Connection";
+    private static final int QoS_EXACLY_ONCE = 2;
+
+    private final Service service;
     private final Notification notification;
+    private final Object synchLock = new Object();
+    private final String applicationRoot;
+    private final ILogger logger;
+
     private MqttAsyncClient mqttClient;
     private HashMap<String, ConnectionBinder> recipients = new HashMap<String, ConnectionBinder>();
     private MessageStash stash;
-    private Service service;
     private boolean connecting;
-    private final Object synchLock = new Object();
     private String brokerUrl = null;
     private String userName;
     private String password;
@@ -42,8 +47,10 @@ public class Connection extends Handler
 
     public Connection(Looper looper, final Service service) {
         super(looper);
+        logger = Logger.getLogger();
         this.service = service;
-        stash = new MessageStash(service.getApplicationContext().getFilesDir().getPath());
+        applicationRoot = service.getApplicationContext().getFilesDir().getPath();
+        stash = new MessageStash(applicationRoot);
 
         notification = new Notification(service);
 
@@ -81,10 +88,17 @@ public class Connection extends Handler
     @Override
     public void handleMessage(Message msg) {
         super.handleMessage(msg);
-        try {
-            connectIfNecessary();
-        } catch (MqttException e) {
-            e.printStackTrace();
+        switch(msg.what) {
+            case Service.RESTART:
+                try {
+                    connectIfNecessary();
+                } catch (MqttException e) {
+                    logger.log("Exception handling RESTART command", e);
+                }
+                break;
+            default:
+                logger.log(String.format("Unknown command %d", msg.what));
+                break;
         }
     }
 
@@ -110,16 +124,14 @@ public class Connection extends Handler
 
             if (mqttClient == null) {
 
-                String appPath = service.getApplicationContext().getFilesDir().getPath();
-
                 mqttClient = new MqttAsyncClient(
                         brokerUrl,
                         userName,
-                        new MqttDefaultFilePersistence(appPath)
+                        new MqttDefaultFilePersistence(applicationRoot)
                 );
                 Log.d(TAG, "Broker URL: " + brokerUrl);
                 Log.d(TAG, "Connection clientId: " + userName);
-                Log.d(TAG, "Application path: " + appPath);
+                Log.d(TAG, "Application path: " + applicationRoot);
 
                 mqttClient.setCallback(new MqttCallback() {
                     @Override
@@ -181,13 +193,13 @@ public class Connection extends Handler
     private void subscribe(final String topic) {
 
         try {
-            //TODO: should this be moved to after subscribe-success?
+
             for (MessageStash.Message message : stash.get()) {
                 send(message.topic, message.body);
                 message.commit();
             }
 
-            mqttClient.subscribe(topic, 2, // QoS = EXACTLY_ONCE
+            mqttClient.subscribe(topic, QoS_EXACLY_ONCE,
                     null,
                     new IMqttActionListener() {
                         @Override
@@ -201,7 +213,7 @@ public class Connection extends Handler
                         }
                     });
         } catch (MqttException e) {
-            e.printStackTrace();
+            logger.log(String.format("Exception subscribing to %s", topic), e);
         }
     }
 
@@ -213,6 +225,7 @@ public class Connection extends Handler
             try {
                 mqttClient.unsubscribe(inboundTopic);
             } catch (MqttException e) {
+                logger.log(String.format("Exception unsubscribing from %s", inboundTopic), e);
                 e.printStackTrace();
             }
         recipients.remove(inboundTopic);
@@ -223,18 +236,19 @@ public class Connection extends Handler
         String outboundTopic = getOutboundTopic(topic);
 
         try {
-            mqttClient.publish(outboundTopic, message.getBytes(), 2, true);
+            mqttClient.publish(outboundTopic, message.getBytes(), QoS_EXACLY_ONCE, true);
             Log.d(TAG, "published :" + message);
         } catch (MqttException e) {
             switch (e.getReasonCode()) {
                 // todo: double check this is the only recoverable failure
                 // it seems likely that REASON_CODE_CLIENT_DISCONNECTING should also be here
                 // I am not 100% sure, but I've seen a message 'Publish of blah failed ' with this reason code
+                case MqttException.REASON_CODE_CLIENT_DISCONNECTING:
                 case MqttException.REASON_CODE_CLIENT_NOT_CONNECTED:
                     stash.put(outboundTopic, message);   // stash it for when the connection comes online;
                     break;
                 default:
-                    Log.d(TAG, "Publish of " + message + " failed :" + e.toString());
+                    logger.log(String.format("Exception publishing to %s", outboundTopic), e);
                     break;
             }
         }
@@ -268,7 +282,8 @@ public class Connection extends Handler
             AssetManager assetManager = this.service.getBaseContext().getAssets();
 
             InputStream in = assetManager.open(filename);
-            String newFilePathName = "/data/data/" + this.service.getBaseContext().getPackageName() + "/" + filename;
+            //todo: change as recommended in the warning
+            String newFilePathName = /*applicationRoot +*/ "/data/data/" + this.service.getBaseContext().getPackageName() + "/" + filename;
             OutputStream out = new FileOutputStream(newFilePathName);
 
             byte[] buffer = new byte[1024];
@@ -305,22 +320,18 @@ public class Connection extends Handler
                             !userName.equals(prefs.getUsername())
                     ) {
                         brokerUrl = prefs.getUrl();
-                        // todo: changing username requires more cleanup - it changes topic name
+                        // todo: changing username requires more cleanup - it changes topic name as well as clientID
                         userName = prefs.getUsername();
                         try {
+                            // todo: move close to the handleMessage
                             mqttClient.close();
                         } catch (MqttException e) {
-                            e.printStackTrace();
+                            logger.log("Exception closing connection", e);
                         }
                         mqttClient = null;
                         connecting = false;
                     }
                     password = prefs.getPassword();
-                    try {
-                        connectIfNecessary();
-                    } catch (MqttException e) {
-                        e.printStackTrace();
-                    }
                 } else {
                     // the actual connection will happen on save prefs
                     service.startActivity(new Intent(service, SettingsActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
