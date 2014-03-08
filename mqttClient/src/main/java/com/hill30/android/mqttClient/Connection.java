@@ -67,10 +67,9 @@ public class Connection extends Handler
 
     public void connect(ConnectionBinder connectionBinder, final String topic) throws MqttException {
 
-        MessagingServicePreferences prefs = new MessagingServicePreferences(service.getApplication());
-
         recipients.put(topic, connectionBinder);
 
+        MessagingServicePreferences prefs = new MessagingServicePreferences(service.getApplication());
         if (prefs.isValid()) {
             brokerUrl = prefs.getUrl();
             userName = prefs.getUsername();
@@ -81,7 +80,6 @@ public class Connection extends Handler
         } else
             // the actual connection will happen on save prefs
             service.startActivity(new Intent(service, SettingsActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-
 
     }
 
@@ -97,9 +95,6 @@ public class Connection extends Handler
                         // todo: check if change in password also requires mqttClient recreation
                         if ( !prefs.getUrl().equals(brokerUrl) || !prefs.getUsername().equals(userName)) {
                             brokerUrl = prefs.getUrl();
-                            // todo: changing username requires changing of topic name as well as clientID
-                            // so closing the connection - can it cause loss of messages in flight?
-                            // The idea is that it can only happen if the client is disconnected, but still...
                             userName = prefs.getUsername();
                             if (mqttClient != null)
                                 mqttClient.close();
@@ -150,7 +145,7 @@ public class Connection extends Handler
                     @Override
                     public void connectionLost(Throwable cause) {
                         Log.e(TAG, "Connection lost. Cause: " + cause.toString());
-                        mqttClient = null;
+//                        mqttClient = null;
                         service.onConnectionLost();
                         notification.updateStatus(Notification.STATUS_DISCONNECTED);
                     }

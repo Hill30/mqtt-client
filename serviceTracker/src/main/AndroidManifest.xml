@@ -18,11 +18,8 @@
             </intent-filter>
         </activity>
 
-        <service android:name=".services.MessagePersistenceService" />
         <service android:name=".activityRecordStorage.Storage" />
 
     </application>
-
-    <uses-permission android:name="android.permission.INTERNET" />
 
 </manifest>
