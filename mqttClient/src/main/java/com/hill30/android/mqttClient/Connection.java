@@ -50,7 +50,6 @@ public class Connection extends Handler
         logger = Logger.getLogger();
         this.service = service;
         applicationRoot = service.getApplicationContext().getFilesDir().getPath();
-        stash = new MessageStash(applicationRoot);
 
         notification = new Notification(service);
 
@@ -95,12 +94,12 @@ public class Connection extends Handler
                     MessagingServicePreferences prefs = new MessagingServicePreferences(service.getApplication());
                     if (prefs.isValid()) {
                         password = prefs.getPassword();
-                        if (
-                            // todo: check if change in password also requires mqttClient recreation
-                            !prefs.getUrl().equals(brokerUrl)
-                            || !prefs.getUsername().equals(userName)) {
+                        // todo: check if change in password also requires mqttClient recreation
+                        if ( !prefs.getUrl().equals(brokerUrl) || !prefs.getUsername().equals(userName)) {
                             brokerUrl = prefs.getUrl();
-                            // todo: changing username requires more cleanup - it changes topic name as well as clientID
+                            // todo: changing username requires changing of topic name as well as clientID
+                            // so closing the connection - can it cause loss of messages in flight?
+                            // The idea is that it can only happen if the client is disconnected, but still...
                             userName = prefs.getUsername();
                             if (mqttClient != null)
                                 mqttClient.close();
@@ -136,10 +135,12 @@ public class Connection extends Handler
 
             if (mqttClient == null) {
 
+                stash = new MessageStash(applicationRoot + "/" + userName);
+
                 mqttClient = new MqttAsyncClient(
                         brokerUrl,
                         userName,
-                        new MqttDefaultFilePersistence(applicationRoot)
+                        new MqttDefaultFilePersistence(applicationRoot + "/" + userName)
                 );
                 Log.d(TAG, "Broker URL: " + brokerUrl);
                 Log.d(TAG, "Connection clientId: " + userName);
