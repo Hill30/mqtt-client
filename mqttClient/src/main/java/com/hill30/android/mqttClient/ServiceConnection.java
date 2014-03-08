@@ -8,9 +8,6 @@ import android.os.IBinder;
 
 import org.eclipse.paho.client.mqttv3.MqttException;
 
-/**
- * Created by mfeingol on 2/6/14.
- */
 public class ServiceConnection implements android.content.ServiceConnection {
     private ConnectionBinder connectionBinder;
     private Context context;

@@ -6,16 +6,13 @@ import android.content.Context;
 import android.content.Intent;
 import android.support.v4.app.NotificationCompat;
 
-/**
- * Created by mfeingol on 2/28/14.
- */
 public class Notification {
 
     public static final int STATUS_CONNECTED = 1;
     public static final int STATUS_DISCONNECTED = 2;
     public static final int STATUS_CONNECTING = 3;
     private final NotificationCompat.Builder notificationBuilder;
-    private final int notificationId = 1;
+    private static final int notificationId = 1;
     private Context context;
 
     public Notification(Context context) {

@@ -56,6 +56,8 @@ public class Connection extends Handler
 
     }
 
+    private String getTopicFromInbound(String inboundTopic) {return inboundTopic.split("/Inbound/")[0]; }
+
     private String getInboundTopic(String topic) {
         return topic + "/Inbound/" + userName;
     }
@@ -68,16 +70,15 @@ public class Connection extends Handler
 
         MessagingServicePreferences prefs = new MessagingServicePreferences(service.getApplication());
 
+        recipients.put(topic, connectionBinder);
+
         if (prefs.isValid()) {
             brokerUrl = prefs.getUrl();
             userName = prefs.getUsername();
             password = prefs.getPassword();
 
-            String inboundTopic = getInboundTopic(topic);
-            recipients.put(inboundTopic, connectionBinder);
-
             if (connectIfNecessary())
-                subscribe(inboundTopic);
+                subscribe(topic);
         } else
             // the actual connection will happen on save prefs
             service.startActivity(new Intent(service, SettingsActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
@@ -89,9 +90,24 @@ public class Connection extends Handler
     public void handleMessage(Message msg) {
         super.handleMessage(msg);
         switch(msg.what) {
-            case Service.RESTART:
+            case Service.RECONNECT:
                 try {
-                    connectIfNecessary();
+                    MessagingServicePreferences prefs = new MessagingServicePreferences(service.getApplication());
+                    if (prefs.isValid()) {
+                        password = prefs.getPassword();
+                        if (
+                            // todo: check if change in password also requires mqttClient recreation
+                            !prefs.getUrl().equals(brokerUrl)
+                            || !prefs.getUsername().equals(userName)) {
+                            brokerUrl = prefs.getUrl();
+                            // todo: changing username requires more cleanup - it changes topic name as well as clientID
+                            userName = prefs.getUsername();
+                            if (mqttClient != null)
+                                mqttClient.close();
+                            mqttClient = null;
+                        }
+                        connectIfNecessary();
+                    }
                 } catch (MqttException e) {
                     logger.log("Exception handling RESTART command", e);
                 }
@@ -103,10 +119,6 @@ public class Connection extends Handler
     }
 
     public boolean connectIfNecessary() throws MqttException {
-
-        // There was no call to connect yet - we do not know what to connect to
-        if (brokerUrl == null)
-            return false;
 
         synchronized (synchLock) {
 
@@ -137,7 +149,6 @@ public class Connection extends Handler
                     @Override
                     public void connectionLost(Throwable cause) {
                         Log.e(TAG, "Connection lost. Cause: " + cause.toString());
-                        cause.printStackTrace();
                         mqttClient = null;
                         service.onConnectionLost();
                         notification.updateStatus(Notification.STATUS_DISCONNECTED);
@@ -145,7 +156,7 @@ public class Connection extends Handler
 
                     @Override
                     public void messageArrived(String topic, MqttMessage message) throws Exception {
-                        ConnectionBinder recipient = recipients.get(topic);
+                        ConnectionBinder recipient = recipients.get(getTopicFromInbound(topic));
                         if (recipient != null)
                             recipient.onMessageReceived(message.toString());
                         Log.d(TAG, "Message " + message + " received");
@@ -172,8 +183,15 @@ public class Connection extends Handler
                 public void onSuccess(IMqttToken asyncActionToken) {
                     connecting = false;
                     Log.d(TAG, "connected");
+
+                    for (MessageStash.Message message : stash.get()) {
+                        send(message.topic, message.body);
+                        message.commit();
+                    }
+
                     for (Map.Entry<String, ConnectionBinder> binder : recipients.entrySet())
                         subscribe(binder.getKey());
+
                     notification.updateStatus(Notification.STATUS_CONNECTED);
                 }
 
@@ -190,30 +208,27 @@ public class Connection extends Handler
         }
     }
 
-    private void subscribe(final String topic) {
+    private void subscribe(String topic) {
+
+        final String inboundTopic = getInboundTopic(topic);
 
         try {
 
-            for (MessageStash.Message message : stash.get()) {
-                send(message.topic, message.body);
-                message.commit();
-            }
-
-            mqttClient.subscribe(topic, QoS_EXACLY_ONCE,
+            mqttClient.subscribe(inboundTopic, QoS_EXACLY_ONCE,
                     null,
                     new IMqttActionListener() {
                         @Override
                         public void onSuccess(IMqttToken iMqttToken) {
-                            Log.d(TAG, "Successfully subscribed to " + topic);
+                            Log.d(TAG, "Successfully subscribed to " + inboundTopic);
                         }
 
                         @Override
                         public void onFailure(IMqttToken iMqttToken, Throwable throwable) {
-                            Log.e(TAG, "Subscribe to " + topic + " failed: " + throwable.toString());
+                            Log.e(TAG, "Subscribe to " + inboundTopic + " failed: " + throwable.toString());
                         }
                     });
         } catch (MqttException e) {
-            logger.log(String.format("Exception subscribing to %s", topic), e);
+            logger.log(String.format("Exception subscribing to %s", inboundTopic), e);
         }
     }
 
@@ -226,9 +241,8 @@ public class Connection extends Handler
                 mqttClient.unsubscribe(inboundTopic);
             } catch (MqttException e) {
                 logger.log(String.format("Exception unsubscribing from %s", inboundTopic), e);
-                e.printStackTrace();
             }
-        recipients.remove(inboundTopic);
+        recipients.remove(topic);
     }
 
     public void send(String topic, String message) {
@@ -307,31 +321,13 @@ public class Connection extends Handler
     public void executeCommand(Intent intent) {
         int command = intent.getIntExtra(Service.SERVICE_COMMAND, -1);
         switch (command) {
-            case Service.RESTART:
-                if (mqttClient == null || mqttClient.isConnected())
+            case Service.RECONNECT:
+                if (mqttClient != null && mqttClient.isConnected())
                     // reconnect is possible only if mqttClient is initialized but disconnected
                     return;
 
-                MessagingServicePreferences prefs = new MessagingServicePreferences(service.getApplication());
-                if (prefs.isValid()) {
-                    if (
-                            // todo: check if change in password also requires mqttClient recreation
-                            !brokerUrl.equals(prefs.getUrl()) ||
-                            !userName.equals(prefs.getUsername())
-                    ) {
-                        brokerUrl = prefs.getUrl();
-                        // todo: changing username requires more cleanup - it changes topic name as well as clientID
-                        userName = prefs.getUsername();
-                        try {
-                            // todo: move close to the handleMessage
-                            mqttClient.close();
-                        } catch (MqttException e) {
-                            logger.log("Exception closing connection", e);
-                        }
-                        mqttClient = null;
-                        connecting = false;
-                    }
-                    password = prefs.getPassword();
+                if (new MessagingServicePreferences(service.getApplication()).isValid()) {
+                    sendEmptyMessage(Service.RECONNECT);
                 } else {
                     // the actual connection will happen on save prefs
                     service.startActivity(new Intent(service, SettingsActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
@@ -339,9 +335,9 @@ public class Connection extends Handler
                 }
                 break;
             default:
+                sendEmptyMessage(command);
                 break;
         }
-        sendEmptyMessage(command);
     }
 
 }

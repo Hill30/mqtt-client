@@ -18,13 +18,15 @@ public class Service extends android.app.Service {
 
     public static final String TAG = "MQTT Service";
     public static final String TOPIC_NAME = "com.hill30.android.mqttClient.topic-name";
-    public static final int RESTART = 1;
+    public static final int RECONNECT = 1;
     public static final String SERVICE_COMMAND = "com.hill30.android.mqttClient.service-command";
+    private static final int retry_interval = 20000; //milliseconds
 
     private Connection connection;
     private Timer reconnectTimer = new Timer();
 
-    private int retry_interval = 20000; //milliseconds
+
+    private boolean networkAvailable = false;
 
     private BroadcastReceiver networkStatusReceiver = new BroadcastReceiver() {
         @Override
@@ -32,14 +34,13 @@ public class Service extends android.app.Service {
             networkAvailable = !intent.getBooleanExtra(ConnectivityManager.EXTRA_NO_CONNECTIVITY, false);
             if (networkAvailable)
                 Log.e(TAG, "Network restored. Reconnecting");
-                try {
-                    connection.connectIfNecessary();
-                } catch (MqttException e) {
-                    e.printStackTrace();
-                }
+            connection.executeCommand(
+                    new Intent(Service.SERVICE_COMMAND)
+                            .putExtra(Service.SERVICE_COMMAND, Service.RECONNECT)
+            );
         }
     };
-    private boolean networkAvailable = false;
+
 
     private BroadcastReceiver messagingServiceCommandReceiver = new BroadcastReceiver() {
         @Override
@@ -48,6 +49,14 @@ public class Service extends android.app.Service {
         }
     };
     private boolean scheduled = false;
+
+    public static void sendCommand(Context context, int command) {
+        context.sendBroadcast(
+                new Intent(Service.SERVICE_COMMAND)
+                        .putExtra(Service.SERVICE_COMMAND, command)
+        );
+
+    }
 
     @Override
     public void onCreate() {

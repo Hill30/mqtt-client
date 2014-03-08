@@ -3,9 +3,6 @@ package com.hill30.android.mqttClient;
 import java.util.LinkedList;
 import java.util.List;
 
-/**
- * Created by michaelfeingold on 2/6/14.
- */
 public class MessageStash {
 
     // todo: implement stash over file system. Message to be resubmitted preserving their order

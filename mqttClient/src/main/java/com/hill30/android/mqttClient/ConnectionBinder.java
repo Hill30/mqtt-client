@@ -5,9 +5,6 @@ import android.os.Binder;
 
 import org.eclipse.paho.client.mqttv3.MqttException;
 
-/**
- * Created by michaelfeingold on 2/5/14.
- */
 class ConnectionBinder extends Binder {
     private final Connection connection;
     private final String topic;

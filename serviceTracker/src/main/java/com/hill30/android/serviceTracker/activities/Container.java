@@ -28,10 +28,6 @@ public class Container extends ActionBarActivity {
     private WebView webView;
     private StorageConnection storageConnection;
 
-    private Application application(){
-        return (Application) getApplication();
-    }
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -80,12 +76,17 @@ public class Container extends ActionBarActivity {
 
         storageConnection = new StorageConnection(this, new StorageConnection.MessageListener() {
             @Override
-            public void onNewActivityRecord(int id, ActivityRecordMessage activityRecord) {
-                try {
-                    webView.loadUrl("javascript:WebApi.NotificationService.newRecord(\'" + activityRecord.toJSON().toString() + "\')");
-                } catch (JSONException e) {
-                    e.printStackTrace();
+            public void onNewActivityRecord(int id, final ActivityRecordMessage activityRecord) {
+            runOnUiThread(new Runnable() {
+                @Override
+                public void run() {
+                    try {
+                        webView.loadUrl("javascript:WebApi.NotificationService.newRecord(\'" + activityRecord.toJSON().toString() + "\')");
+                    } catch (JSONException e) {
+                        e.printStackTrace();
+                    }
                 }
+            });
             }
         });
 
