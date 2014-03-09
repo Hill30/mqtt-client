@@ -18,6 +18,7 @@ import org.eclipse.paho.client.mqttv3.MqttMessage;
 import org.eclipse.paho.client.mqttv3.persist.MqttDefaultFilePersistence;
 
 import java.io.FileOutputStream;
+import java.io.IOException;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.util.HashMap;
@@ -65,7 +66,7 @@ public class Connection extends Handler
         return topic + "/Outbound";
     }
 
-    public void connect(ConnectionBinder connectionBinder, final String topic) throws MqttException {
+    public void connect(ConnectionBinder connectionBinder, final String topic) throws MqttException, IOException {
 
         recipients.put(topic, connectionBinder);
 
@@ -104,6 +105,8 @@ public class Connection extends Handler
                     }
                 } catch (MqttException e) {
                     logger.log("Exception handling RESTART command", e);
+                } catch (IOException e) {
+                    logger.log("Exception handling RESTART command", e);
                 }
                 break;
             default:
@@ -112,7 +115,7 @@ public class Connection extends Handler
         }
     }
 
-    public boolean connectIfNecessary() throws MqttException {
+    public boolean connectIfNecessary() throws MqttException, IOException {
 
         synchronized (synchLock) {
 
@@ -145,7 +148,6 @@ public class Connection extends Handler
                     @Override
                     public void connectionLost(Throwable cause) {
                         Log.e(TAG, "Connection lost. Cause: " + cause.toString());
-//                        mqttClient = null;
                         service.onConnectionLost();
                         notification.updateStatus(Notification.STATUS_DISCONNECTED);
                     }
@@ -181,8 +183,15 @@ public class Connection extends Handler
                     Log.d(TAG, "connected");
 
                     for (MessageStash.Message message : stash.get()) {
-                        send(message.topic, message.body);
-                        message.commit();
+                        try {
+                            send(message.topic(), message.body());
+                            message.commit();
+                        } catch (IOException e) {
+                            // we can safely ignore it here because this code is executed after the connection is restored
+                            // so there will be no need to stash the message, but even the connection will be lost while
+                            // resubmitting messages here there will be no need to worry - the message will remain stashed
+                            // because message.commit will not be executed
+                        }
                     }
 
                     for (Map.Entry<String, ConnectionBinder> binder : recipients.entrySet())
@@ -241,13 +250,13 @@ public class Connection extends Handler
         recipients.remove(topic);
     }
 
-    public void send(String topic, String message) {
+    public void send(String topic, String message) throws IOException {
 
         String outboundTopic = getOutboundTopic(topic);
 
         try {
             mqttClient.publish(outboundTopic, message.getBytes(), QoS_EXACLY_ONCE, true);
-            Log.d(TAG, "published :" + message);
+            Log.d(TAG, "published to " + outboundTopic + " :" + message);
         } catch (MqttException e) {
             switch (e.getReasonCode()) {
                 // todo: double check this is the only recoverable failure
@@ -255,7 +264,7 @@ public class Connection extends Handler
                 // I am not 100% sure, but I've seen a message 'Publish of blah failed ' with this reason code
                 case MqttException.REASON_CODE_CLIENT_DISCONNECTING:
                 case MqttException.REASON_CODE_CLIENT_NOT_CONNECTED:
-                    stash.put(outboundTopic, message);   // stash it for when the connection comes online;
+                    stash.put(topic, message);   // stash it for when the connection comes back online;
                     break;
                 default:
                     logger.log(String.format("Exception publishing to %s", outboundTopic), e);

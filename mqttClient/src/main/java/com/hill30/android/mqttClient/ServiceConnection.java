@@ -8,6 +8,8 @@ import android.os.IBinder;
 
 import org.eclipse.paho.client.mqttv3.MqttException;
 
+import java.io.IOException;
+
 public class ServiceConnection implements android.content.ServiceConnection {
     private ConnectionBinder connectionBinder;
     private Context context;
@@ -48,6 +50,8 @@ public class ServiceConnection implements android.content.ServiceConnection {
             connectionBinder.connect();
         } catch (MqttException e) {
             e.printStackTrace();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
     }
 
@@ -56,7 +60,7 @@ public class ServiceConnection implements android.content.ServiceConnection {
         connectionBinder.disconnectBinder();
     }
 
-    public void send(String message) {
+    public void send(String message) throws IOException {
         connectionBinder.send(message);
     }
 

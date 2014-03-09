@@ -11,6 +11,7 @@ import android.util.Log;
 
 import org.eclipse.paho.client.mqttv3.MqttException;
 
+import java.io.IOException;
 import java.util.Timer;
 import java.util.TimerTask;
 
@@ -95,6 +96,8 @@ public class Service extends android.app.Service {
                         connection.connectIfNecessary();
                         scheduled = false;
                     } catch (MqttException e) {
+                        e.printStackTrace();
+                    } catch (IOException e) {
                         e.printStackTrace();
                     }
                 }

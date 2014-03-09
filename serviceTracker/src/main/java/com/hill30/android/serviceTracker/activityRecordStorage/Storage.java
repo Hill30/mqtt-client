@@ -11,6 +11,7 @@ import com.hill30.android.serviceTracker.entities.ActivityRecordMessage;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import java.io.IOException;
 import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
@@ -72,6 +73,8 @@ public class Storage extends Service {
             records.get(id).setPayload(new JSONObject(payload));
             serviceConnection.send(payload);
         } catch (JSONException e) {
+            e.printStackTrace();
+        } catch (IOException e) {
             e.printStackTrace();
         }
     }

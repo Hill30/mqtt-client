@@ -5,6 +5,8 @@ import android.os.Binder;
 
 import org.eclipse.paho.client.mqttv3.MqttException;
 
+import java.io.IOException;
+
 class ConnectionBinder extends Binder {
     private final Connection connection;
     private final String topic;
@@ -15,7 +17,7 @@ class ConnectionBinder extends Binder {
         topic = intent.getStringExtra(Service.TOPIC_NAME);
     }
 
-    public void connect() throws MqttException {
+    public void connect() throws MqttException, IOException {
         connection.connect(this, topic);
     }
 
@@ -24,7 +26,7 @@ class ConnectionBinder extends Binder {
             messageListener.onMessageArrived(message);
     }
 
-    public void send(String message) {
+    public void send(String message) throws IOException {
         connection.send(topic, message);
     }
 
