@@ -1,9 +1,9 @@
-package com.hill30.android.serviceTracker.entities;
+package com.hill30.android.serviceTracker.activityRecordStorage;
 
 /**
  * Created by azavarin on 2/20/14.
  */
-public abstract class EntityBase {
+public abstract class Entity {
 
     protected int id;
 

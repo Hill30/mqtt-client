@@ -5,8 +5,6 @@ import android.content.Intent;
 import android.os.IBinder;
 
 import com.hill30.android.mqttClient.ServiceConnection;
-import com.hill30.android.serviceTracker.common.Application;
-import com.hill30.android.serviceTracker.entities.ActivityRecordMessage;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -22,10 +20,6 @@ public class Storage extends Service {
     private int nextId = 0;
     private StorageBinder storageBinder;
     private ServiceConnection serviceConnection;
-
-    private Application application() {
-        return (Application)getApplication();
-    }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {

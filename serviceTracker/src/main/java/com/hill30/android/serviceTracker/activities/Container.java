@@ -16,8 +16,7 @@ import com.hill30.android.mqttClient.SettingsActivity;
 import com.hill30.android.serviceTracker.MVCControllers;
 import com.hill30.android.serviceTracker.R;
 import com.hill30.android.serviceTracker.activityRecordStorage.StorageConnection;
-import com.hill30.android.serviceTracker.common.Application;
-import com.hill30.android.serviceTracker.entities.ActivityRecordMessage;
+import com.hill30.android.serviceTracker.activityRecordStorage.ActivityRecordMessage;
 
 import org.json.JSONException;
 

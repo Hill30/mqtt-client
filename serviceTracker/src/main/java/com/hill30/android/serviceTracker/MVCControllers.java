@@ -1,7 +1,7 @@
 package com.hill30.android.serviceTracker;
 
 import com.hill30.android.serviceTracker.activityRecordStorage.StorageConnection;
-import com.hill30.android.serviceTracker.entities.ActivityRecordMessage;
+import com.hill30.android.serviceTracker.activityRecordStorage.ActivityRecordMessage;
 
 import org.json.JSONArray;
 

@@ -3,7 +3,6 @@
     package="com.hill30.android.serviceTracker" >
 
     <application
-        android:name="com.hill30.android.serviceTracker.common.Application"
         android:allowBackup="true"
         android:icon="@drawable/ic_launcher"
         android:label="@string/app_name" >

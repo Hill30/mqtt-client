@@ -2,8 +2,6 @@ package com.hill30.android.serviceTracker.activityRecordStorage;
 
 import android.os.Binder;
 
-import com.hill30.android.serviceTracker.entities.ActivityRecordMessage;
-
 import java.util.Map;
 import java.util.Set;
 

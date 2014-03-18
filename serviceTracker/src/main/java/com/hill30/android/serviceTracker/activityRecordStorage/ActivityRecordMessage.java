@@ -1,4 +1,4 @@
-package com.hill30.android.serviceTracker.entities;
+package com.hill30.android.serviceTracker.activityRecordStorage;
 
 import org.json.JSONException;
 import org.json.JSONObject;
@@ -6,7 +6,7 @@ import org.json.JSONObject;
 /**
  * Created by azavarin on 2/20/14.
  */
-public class ActivityRecordMessage extends EntityBase {
+public class ActivityRecordMessage extends Entity {
     private JSONObject payload = null;
 
     public ActivityRecordMessage() {}

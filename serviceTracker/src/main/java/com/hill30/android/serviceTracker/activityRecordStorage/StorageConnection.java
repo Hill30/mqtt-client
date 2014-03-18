@@ -7,10 +7,6 @@ import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
 
-import com.hill30.android.serviceTracker.entities.ActivityRecordMessage;
-
-import org.json.JSONObject;
-
 import java.util.Map;
 import java.util.Set;
 
