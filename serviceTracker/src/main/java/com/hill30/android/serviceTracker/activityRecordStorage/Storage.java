@@ -54,6 +54,12 @@ public class Storage extends Service {
         return storageBinder;
     }
 
+    @Override
+    public void onDestroy() {
+        serviceConnection.close();
+        super.onDestroy();
+    }
+
     public Set<Map.Entry<Integer, ActivityRecordMessage>> get() {
         return records.entrySet();
     }
