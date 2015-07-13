@@ -30,6 +30,11 @@ import java.io.IOException;
  *
  */
 public class ServiceConnection implements android.content.ServiceConnection {
+
+    public static final int CONNECTION_STATUS_CONNECTED = 1;
+    public static final int CONNECTION_STATUS_DISCONNECTED = 2;
+    public static final int CONNECTION_STATUS_CONNECTING = 3;
+
     private ConnectionBinder connectionBinder;
     private Context context;
     private MessageListener messageListener;
@@ -105,6 +110,7 @@ public class ServiceConnection implements android.content.ServiceConnection {
     public void onServiceConnected(ComponentName name, IBinder binder) {
         connectionBinder = (ConnectionBinder)binder;
         connectionBinder.listener(messageListener);
+        connectionBinder.setConnectionStateListener(connectionStateListener);
         try {
             connectionBinder.connect();
         } catch (MqttException e) {

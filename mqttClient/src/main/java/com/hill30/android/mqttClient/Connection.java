@@ -32,7 +32,6 @@ public class Connection extends Handler
     private static final int QoS_EXACLY_ONCE = 2;
 
     private final Service service;
-    private final Notification notification;
     private final Object synchLock = new Object();
     private final String applicationRoot;
     private final ILogger logger;
@@ -52,9 +51,6 @@ public class Connection extends Handler
         logger = Logger.getLogger();
         this.service = service;
         applicationRoot = service.getApplicationContext().getFilesDir().getPath();
-
-        notification = new Notification(service);
-
     }
 
     public IMqttAsyncClient getMqttClient() {
@@ -90,19 +86,20 @@ public class Connection extends Handler
             case Service.RECONNECT:
                 try {
 
-                    if (mqttClient != null)
-                        mqttClient.close();
-                    mqttClient = null;
+//                    if (mqttClient != null)
+//                        mqttClient.close();
+//                    mqttClient = null;
+
                     connectIfNecessary();
 
                 } catch (MqttException e) {
-                    logger.log("Exception handling RESTART command", e);
+                    Log.d(TAG, "Exception handling RESTART command", e);
                 } catch (IOException e) {
-                    logger.log("Exception handling RESTART command", e);
+                    Log.d(TAG, "Exception handling RESTART command", e);
                 }
                 break;
             default:
-                logger.log(String.format("Unknown command %d", msg.what));
+                Log.d(TAG, String.format("Unknown command %d", msg.what));
                 break;
         }
     }
@@ -141,7 +138,9 @@ public class Connection extends Handler
                     public void connectionLost(Throwable cause) {
                         Log.e(TAG, "Connection lost. Cause: " + cause.toString());
                         service.onConnectionLost();
-                        notification.updateStatus(Notification.STATUS_DISCONNECTED);
+                        for(ConnectionBinder recipient : recipients.values()){
+                            recipient.onConnectionStateChanged(ServiceConnection.CONNECTION_STATUS_DISCONNECTED);
+                        }
                     }
 
                     @Override
@@ -167,7 +166,10 @@ public class Connection extends Handler
 
             connecting = true;
 
-            notification.updateStatus(Notification.STATUS_CONNECTING);
+            for(ConnectionBinder recipient : recipients.values()){
+                recipient.onConnectionStateChanged(ServiceConnection.CONNECTION_STATUS_CONNECTING);
+            }
+
             mqttClient.connect(connectionOptions, null, new IMqttActionListener() {
                 @Override
                 public void onSuccess(IMqttToken asyncActionToken) {
@@ -189,7 +191,9 @@ public class Connection extends Handler
                     for (Map.Entry<String, ConnectionBinder> binder : recipients.entrySet())
                         subscribe(binder.getKey());
 
-                    notification.updateStatus(Notification.STATUS_CONNECTED);
+                    for(ConnectionBinder recipient : recipients.values()){
+                        recipient.onConnectionStateChanged(ServiceConnection.CONNECTION_STATUS_CONNECTED);
+                    }
                 }
 
                 @Override
@@ -198,7 +202,9 @@ public class Connection extends Handler
                     // todo: onConnectionLost only on recoverable exceptions
                     Log.e(TAG, "Failed to connect :" + exception.toString());
                     service.onConnectionLost();
-                    notification.updateStatus(Notification.STATUS_DISCONNECTED);
+                    for(ConnectionBinder recipient : recipients.values()){
+                        recipient.onConnectionStateChanged(ServiceConnection.CONNECTION_STATUS_DISCONNECTED);
+                    }
                 }
             });
             return false;

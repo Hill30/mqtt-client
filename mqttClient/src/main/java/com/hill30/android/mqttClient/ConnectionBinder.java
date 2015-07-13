@@ -16,6 +16,7 @@ class ConnectionBinder extends Binder {
     private final String password;
 
     private ServiceConnection.MessageListener messageListener;
+    private ServiceConnection.ConnectionStateListener connectionStateListener;
 
     public ConnectionBinder(Connection connection, Intent intent) {
         this.connection = connection;
@@ -46,7 +47,16 @@ class ConnectionBinder extends Binder {
         messageListener = listener;
     }
 
+    public void setConnectionStateListener(ServiceConnection.ConnectionStateListener connectionStateListener){
+        this.connectionStateListener = connectionStateListener;
+    }
+
     public void disconnectBinder() {
         connection.unregisterSubscriber(topic);
+    }
+
+    public void onConnectionStateChanged(int connectionStatus) {
+        if(connectionStateListener != null)
+            connectionStateListener.onConnectionStateChanged(connectionStatus);
     }
 }

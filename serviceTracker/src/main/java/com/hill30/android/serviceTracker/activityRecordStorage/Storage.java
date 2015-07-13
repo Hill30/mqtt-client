@@ -10,6 +10,7 @@ import android.util.Log;
 
 import com.hill30.android.mqttClient.ServiceConnection;
 import com.hill30.android.serviceTracker.activities.MessagingServicePreferences;
+import com.hill30.android.serviceTracker.activities.Notification;
 import com.hill30.android.serviceTracker.activities.SettingsActivity;
 
 import org.json.JSONException;
@@ -33,6 +34,8 @@ public class Storage extends Service {
     private ServiceConnection serviceConnection;
 
     private MessagingServicePreferences messagingServicePreferences;
+    private Notification notification;
+
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -42,7 +45,9 @@ public class Storage extends Service {
     @Override
     public void onCreate() {
         super.onCreate();
+        notification = new Notification(this);
         storageBinder = new StorageBinder(this);
+
         startConnection();
 
         registerReceiver(new BroadcastReceiver() {
@@ -81,7 +86,7 @@ public class Storage extends Service {
                     new ServiceConnection.ConnectionStateListener() {
                         @Override
                         public void onConnectionStateChanged(int connectionState) {
-
+                            notification.updateStatus(connectionState);
                         }
                     });
         } else {
