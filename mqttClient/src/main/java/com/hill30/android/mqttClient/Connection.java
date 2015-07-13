@@ -34,7 +34,6 @@ public class Connection extends Handler
     private final Service service;
     private final Object synchLock = new Object();
     private final String applicationRoot;
-    private final ILogger logger;
 
     private MqttAsyncClient mqttClient;
     private HashMap<String, ConnectionBinder> recipients = new HashMap<String, ConnectionBinder>();
@@ -48,7 +47,6 @@ public class Connection extends Handler
 
     public Connection(Looper looper, final Service service) {
         super(looper);
-        logger = Logger.getLogger();
         this.service = service;
         applicationRoot = service.getApplicationContext().getFilesDir().getPath();
     }
@@ -231,7 +229,7 @@ public class Connection extends Handler
                         }
                     });
         } catch (MqttException e) {
-            logger.log(String.format("Exception subscribing to %s", inboundTopic), e);
+            Log.d(TAG, String.format("Exception subscribing to %s", inboundTopic), e);
         }
     }
 
@@ -243,7 +241,7 @@ public class Connection extends Handler
             try {
                 mqttClient.unsubscribe(inboundTopic);
             } catch (MqttException e) {
-                logger.log(String.format("Exception unsubscribing from %s", inboundTopic), e);
+                Log.d(TAG, String.format("Exception unsubscribing from %s", inboundTopic), e);
             }
         recipients.remove(topic);
     }
@@ -265,7 +263,7 @@ public class Connection extends Handler
                     stash.put(topic, message);   // stash it for when the connection comes back online;
                     break;
                 default:
-                    logger.log(String.format("Exception publishing to %s", outboundTopic), e);
+                    Log.d(TAG, String.format("Exception publishing to %s", outboundTopic), e);
                     break;
             }
         }
