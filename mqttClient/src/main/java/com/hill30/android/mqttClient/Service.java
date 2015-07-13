@@ -18,7 +18,10 @@ import java.util.TimerTask;
 public class Service extends android.app.Service {
 
     public static final String TAG = "MQTT Service";
-    public static final String TOPIC_NAME = "com.hill30.android.mqttClient.topic-name";
+    public static final String TOPIC_NAME = "com.hill30.android.mqttClient.Service.TOPIC_NAME";
+    public static final String BROKER_URL = "com.hill30.android.mqttClient.Service.BROKER_URL";
+    public static final String USERNAME = "com.hill30.android.mqttClient.Service.USERNAME";
+    public static final String PASSWORD = "com.hill30.android.mqttClient.Service.PASSWORD";
     public static final int RECONNECT = 1;
     public static final String SERVICE_COMMAND = "com.hill30.android.mqttClient.service-command";
     private static final int retry_interval = 20000; //milliseconds

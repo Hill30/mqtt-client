@@ -6,6 +6,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
 
+import org.eclipse.paho.client.mqttv3.IMqttAsyncClient;
 import org.eclipse.paho.client.mqttv3.MqttException;
 
 import java.io.IOException;
@@ -32,6 +33,7 @@ public class ServiceConnection implements android.content.ServiceConnection {
     private ConnectionBinder connectionBinder;
     private Context context;
     private MessageListener messageListener;
+    private ConnectionStateListener connectionStateListener;
 
     /**
      * Defines callback method to be called when a new message arrives
@@ -43,6 +45,10 @@ public class ServiceConnection implements android.content.ServiceConnection {
          * @param message - message text
          */
         void onMessageArrived(String message);
+    }
+
+    public interface ConnectionStateListener {
+        void onConnectionStateChanged(int connectionState);
     }
 
     private static void startIfNecessary(Context context, Class serviceClass) {
@@ -65,17 +71,24 @@ public class ServiceConnection implements android.content.ServiceConnection {
      * @param messageListener defines the callback to be called when a message arrived
      */
 
-    public ServiceConnection(Context context, String topic, MessageListener messageListener) {
+    public ServiceConnection(Context context,
+                             String topic, String brokerUrl, String username, String password,
+                             MessageListener messageListener, ConnectionStateListener connectionStateListener) {
         this.context = context;
         this.messageListener = messageListener;
+        this.connectionStateListener = connectionStateListener;
 
         startIfNecessary(context, Service.class);
 
         // todo: validate topic for illegal characters - it is important for matching incoming message to the recipients (see Connection.java)
         context.bindService(
                 new Intent(context, Service.class)
-                        .putExtra(Service.TOPIC_NAME, topic),
-                this, Context.BIND_AUTO_CREATE);
+                        .putExtra(Service.TOPIC_NAME, topic)
+                        .putExtra(Service.BROKER_URL, brokerUrl)
+                        .putExtra(Service.USERNAME, username)
+                        .putExtra(Service.PASSWORD, password),
+                this,
+                Context.BIND_AUTO_CREATE);
     }
 
     /**
@@ -84,8 +97,8 @@ public class ServiceConnection implements android.content.ServiceConnection {
      * @param topic
      */
 
-    public ServiceConnection(Context context, String topic) {
-        this(context, topic, null);
+    public ServiceConnection(Context context, String topic,  String brokerUrl, String username, String password) {
+        this(context, topic, brokerUrl, username, password, null, null);
     }
 
     @Override
@@ -119,6 +132,7 @@ public class ServiceConnection implements android.content.ServiceConnection {
         connectionBinder.send(message);
     }
 
+    public IMqttAsyncClient getMqttClient() { return connectionBinder.getMqttClient(); }
     /**
      * Releases resources associated with the connection
      */

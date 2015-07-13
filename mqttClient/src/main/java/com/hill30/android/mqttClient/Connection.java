@@ -8,6 +8,7 @@ import android.os.Message;
 import android.util.Log;
 
 import org.eclipse.paho.client.mqttv3.IMqttActionListener;
+import org.eclipse.paho.client.mqttv3.IMqttAsyncClient;
 import org.eclipse.paho.client.mqttv3.IMqttDeliveryToken;
 import org.eclipse.paho.client.mqttv3.IMqttToken;
 import org.eclipse.paho.client.mqttv3.MqttAsyncClient;
@@ -56,6 +57,10 @@ public class Connection extends Handler
 
     }
 
+    public IMqttAsyncClient getMqttClient() {
+        return mqttClient;
+    }
+
     private String getTopicFromInbound(String inboundTopic) {return inboundTopic.split("/Inbound/")[0]; }
 
     private String getInboundTopic(String topic) {
@@ -66,22 +71,16 @@ public class Connection extends Handler
         return topic + "/Outbound";
     }
 
-    public void connect(ConnectionBinder connectionBinder, final String topic) throws MqttException, IOException {
+    public void connect(ConnectionBinder connectionBinder, String topic, String brokerUrl, String username, final String password) throws MqttException, IOException {
 
         recipients.put(topic, connectionBinder);
 
-        MessagingServicePreferences prefs = new MessagingServicePreferences(service.getApplication());
-        if (prefs.isValid()) {
-            brokerUrl = prefs.getUrl();
-            userName = prefs.getUsername();
-            password = prefs.getPassword();
+        this.brokerUrl = brokerUrl;
+        this.userName = username;
+        this.password = password;
 
-            if (connectIfNecessary())
-                subscribe(topic);
-        } else
-            // the actual connection will happen on save prefs
-            service.startActivity(new Intent(service, SettingsActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-
+        if (connectIfNecessary())
+            subscribe(topic);
     }
 
     @Override
@@ -90,19 +89,12 @@ public class Connection extends Handler
         switch(msg.what) {
             case Service.RECONNECT:
                 try {
-                    MessagingServicePreferences prefs = new MessagingServicePreferences(service.getApplication());
-                    if (prefs.isValid()) {
-                        password = prefs.getPassword();
-                        // todo: check if change in password also requires mqttClient recreation
-                        if ( !prefs.getUrl().equals(brokerUrl) || !prefs.getUsername().equals(userName)) {
-                            brokerUrl = prefs.getUrl();
-                            userName = prefs.getUsername();
-                            if (mqttClient != null)
-                                mqttClient.close();
-                            mqttClient = null;
-                        }
-                        connectIfNecessary();
-                    }
+
+                    if (mqttClient != null)
+                        mqttClient.close();
+                    mqttClient = null;
+                    connectIfNecessary();
+
                 } catch (MqttException e) {
                     logger.log("Exception handling RESTART command", e);
                 } catch (IOException e) {
@@ -331,13 +323,7 @@ public class Connection extends Handler
                     // reconnect is possible only if mqttClient is initialized but disconnected
                     return;
 
-                if (new MessagingServicePreferences(service.getApplication()).isValid()) {
-                    sendEmptyMessage(Service.RECONNECT);
-                } else {
-                    // the actual connection will happen on save prefs
-                    service.startActivity(new Intent(service, SettingsActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
-                    return;
-                }
+                sendEmptyMessage(Service.RECONNECT);
                 break;
             default:
                 sendEmptyMessage(command);

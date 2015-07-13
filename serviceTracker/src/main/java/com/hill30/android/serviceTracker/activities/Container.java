@@ -12,7 +12,6 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
-import com.hill30.android.mqttClient.SettingsActivity;
 import com.hill30.android.serviceTracker.MVCControllers;
 import com.hill30.android.serviceTracker.R;
 import com.hill30.android.serviceTracker.activityRecordStorage.StorageConnection;

@@ -1,4 +1,4 @@
-package com.hill30.android.mqttClient;
+package com.hill30.android.serviceTracker.activities;
 
 import android.app.Application;
 import android.content.Context;
@@ -6,10 +6,10 @@ import android.content.SharedPreferences;
 
 public class MessagingServicePreferences {
 
-    private static final String URL = "com.hill30.android.mqttClient.MessagingServicePreferences.URL";
-    private static final String USERNAME = "com.hill30.android.mqttClient.MessagingServicePreferences.USERNAME";
-    private static final String PASSWORD = "com.hill30.android.mqttClient.MessagingServicePreferences.PASSWORD";
-    private static final String PREFERENCES = "com.hill30.android.mqttClient.MessagingServicePreferences";
+    private static final String URL = "com.hill30.android.serviceTracker.activities.MessagingServicePreferences.URL";
+    private static final String USERNAME = "com.hill30.android.serviceTracker.activities.MessagingServicePreferences.USERNAME";
+    private static final String PASSWORD = "com.hill30.android.serviceTracker.activities.MessagingServicePreferences.PASSWORD";
+    private static final String PREFERENCES = "com.hill30.android.serviceTracker.activities.MessagingServicePreferences";
 
     private Application application;
 

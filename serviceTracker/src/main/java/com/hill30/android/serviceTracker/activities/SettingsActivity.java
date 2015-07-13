@@ -1,9 +1,13 @@
-package com.hill30.android.mqttClient;
+package com.hill30.android.serviceTracker.activities;
 
 import android.app.Activity;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 import android.widget.EditText;
+
+import com.hill30.android.mqttClient.Service;
+import com.hill30.android.serviceTracker.activityRecordStorage.Storage;
 
 public class SettingsActivity extends Activity {
 
@@ -15,14 +19,14 @@ public class SettingsActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_settings);
+        setContentView(com.hill30.android.mqttClient.R.layout.activity_settings);
 
         prefs = new MessagingServicePreferences(getApplication());
 
-        txtUrl = (EditText) findViewById(R.id.txtUrl);
-        txtUsername = (EditText) findViewById(R.id.txtUsername);
-        txtPassword = (EditText) findViewById(R.id.txtPassword);
-        findViewById(R.id.btnSave).setOnClickListener(new View.OnClickListener() {
+        txtUrl = (EditText) findViewById(com.hill30.android.mqttClient.R.id.txtUrl);
+        txtUsername = (EditText) findViewById(com.hill30.android.mqttClient.R.id.txtUsername);
+        txtPassword = (EditText) findViewById(com.hill30.android.mqttClient.R.id.txtPassword);
+        findViewById(com.hill30.android.mqttClient.R.id.btnSave).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
 
@@ -34,7 +38,8 @@ public class SettingsActivity extends Activity {
                 prefs.saveUsername(username);
                 prefs.savePassword(password);
 
-                Service.sendCommand(SettingsActivity.this, Service.RECONNECT);
+                Intent restartConnectionIntent = new Intent(Storage.RESTART_CONNECTION);
+                SettingsActivity.this.sendBroadcast(restartConnectionIntent);
 
                 finish();
             }
@@ -46,9 +51,9 @@ public class SettingsActivity extends Activity {
         super.onResume();
 
         if(!prefs.isValid()){
-            txtUrl.setText("tcp://217.119.26.211:1883");
-            txtUsername.setText("userName");
-            txtPassword.setText("password");
+            txtUrl.setText("tcp://10.0.1.134:1883");
+            txtUsername.setText("admin");
+            txtPassword.setText("admin");
         } else {
             txtUrl.setText(prefs.getUrl());
             txtUsername.setText(prefs.getUsername());
