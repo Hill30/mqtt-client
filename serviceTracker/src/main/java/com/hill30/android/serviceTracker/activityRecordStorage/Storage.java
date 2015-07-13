@@ -124,5 +124,13 @@ public class Storage extends Service {
         }
     }
 
+    public void suspendConnection(){
+        serviceConnection.suspend();
+    }
+
+    public void resumeConnection() {
+        serviceConnection.resume();
+    }
+
 
 }

@@ -138,6 +138,10 @@ public class ServiceConnection implements android.content.ServiceConnection {
         connectionBinder.send(message);
     }
 
+    public void suspend() { connectionBinder.suspend(); }
+
+    public void resume() { connectionBinder.resume(); }
+
     public IMqttAsyncClient getMqttClient() { return connectionBinder.getMqttClient(); }
     /**
      * Releases resources associated with the connection

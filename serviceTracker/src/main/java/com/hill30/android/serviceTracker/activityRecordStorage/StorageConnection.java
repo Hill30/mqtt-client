@@ -69,4 +69,14 @@ public class StorageConnection implements ServiceConnection {
     public void save(int id, String record) {
         service.save(id, record);
     }
+
+    public void suspend() {
+        service.suspendConnection();
+    }
+
+    public void resume() {
+        service.resumeConnection();
+    }
+
+
 }

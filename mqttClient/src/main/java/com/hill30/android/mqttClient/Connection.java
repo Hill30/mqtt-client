@@ -335,4 +335,36 @@ public class Connection extends Handler
         }
     }
 
+    public void resume() {
+        try {
+            connectIfNecessary();
+        } catch (MqttException e) {
+            Log.e(TAG, "Unable to close MQTT connection at protocol level");
+        } catch (IOException e) {
+            Log.e(TAG, "Unable to close MQTT connection at network level");
+        }
+    }
+
+    public void suspend() {
+        if(mqttClient != null && mqttClient.isConnected()){
+            try {
+                mqttClient.disconnect(null, new IMqttActionListener() {
+                    @Override
+                    public void onSuccess(IMqttToken asyncActionToken) {
+                        Log.d(TAG, "MQTT Connection suspended");
+                        for(ConnectionBinder recipient : recipients.values()){
+                            recipient.onConnectionStateChanged(ServiceConnection.CONNECTION_STATUS_DISCONNECTED);
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
+                        Log.e(TAG, "Unable to suspend MQTT connection.");
+                    }
+                });
+            } catch (MqttException e) {
+                Log.e(TAG, "Unable to close MQTT connection");
+            }
+        }
+    }
 }

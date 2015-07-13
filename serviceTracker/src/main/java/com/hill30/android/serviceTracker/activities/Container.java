@@ -120,10 +120,20 @@ public class Container extends ActionBarActivity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
-        if (id == R.id.action_settings) {
-            startActivity(new Intent(Container.this, SettingsActivity.class));
-            return true;
+        switch (id){
+            case R.id.action_suspend:
+                storageConnection.suspend();
+                break;
+            case R.id.action_resume:
+                storageConnection.resume();
+                break;
+            case R.id.action_settings:
+                startActivity(new Intent(Container.this, SettingsActivity.class));
+                return true;
+            default:
+                break;
         }
+
         return super.onOptionsItemSelected(item);
     }
 

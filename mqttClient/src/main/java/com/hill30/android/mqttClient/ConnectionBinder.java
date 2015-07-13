@@ -59,4 +59,12 @@ class ConnectionBinder extends Binder {
         if(connectionStateListener != null)
             connectionStateListener.onConnectionStateChanged(connectionStatus);
     }
+
+    public void suspend() {
+        connection.suspend();
+    }
+
+    public void resume() {
+        connection.resume();
+    }
 }

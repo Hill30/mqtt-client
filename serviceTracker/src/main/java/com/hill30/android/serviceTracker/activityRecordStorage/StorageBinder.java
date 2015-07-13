@@ -35,4 +35,12 @@ public class StorageBinder extends Binder {
         storage.save(id, record);
     }
 
+    public void suspendConnection(){
+        storage.suspendConnection();
+    }
+
+    public void resumeConnection(){
+        storage.resumeConnection();
+    }
+
 }
