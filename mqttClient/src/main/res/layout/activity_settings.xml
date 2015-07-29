@@ -13,17 +13,24 @@
         />
 
     <EditText
+        android:id="@+id/txtUserId"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="User ID"
+        />
+
+    <EditText
         android:id="@+id/txtUsername"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Username"
+        android:hint="Broker Username"
         />
 
     <EditText
         android:id="@+id/txtPassword"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:hint="Password"
+        android:hint="Broker Password"
         android:inputType="textPassword"
         />
 

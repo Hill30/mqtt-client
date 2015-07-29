@@ -40,8 +40,9 @@ public class Connection extends Handler
     private MessageStash stash;
     private boolean connecting;
     private String brokerUrl = null;
-    private String userName;
-    private String password;
+    private String brokerUsername;
+    private String brokerPassword;
+    private String userId;
 
     // todo: exception processing/reporting. Also applies to all other places with printStackTrace
 
@@ -58,20 +59,21 @@ public class Connection extends Handler
     private String getTopicFromInbound(String inboundTopic) {return inboundTopic.split("/Inbound/")[0]; }
 
     private String getInboundTopic(String topic) {
-        return topic + "/Inbound/" + userName;
+        return topic + "/Inbound/" + userId;
     }
 
     private String getOutboundTopic(String topic) {
         return topic + "/Outbound";
     }
 
-    public void connect(ConnectionBinder connectionBinder, String topic, String brokerUrl, String username, final String password) throws MqttException, IOException {
+    public void connect(ConnectionBinder connectionBinder, String topic, String userId, String brokerUrl, String brokerUsername, final String brokerPassword) throws MqttException, IOException {
 
         recipients.put(topic, connectionBinder);
 
         this.brokerUrl = brokerUrl;
-        this.userName = username;
-        this.password = password;
+        this.userId = userId;
+        this.brokerUsername = brokerUsername;
+        this.brokerPassword = brokerPassword;
 
         if (connectIfNecessary())
             subscribe(topic);
@@ -108,8 +110,8 @@ public class Connection extends Handler
 
             MqttConnectOptions connectionOptions = new MqttConnectOptions();
             connectionOptions.setCleanSession(false);
-            connectionOptions.setUserName(userName);
-            connectionOptions.setPassword(password.toCharArray());
+            connectionOptions.setUserName(brokerUsername);
+            connectionOptions.setPassword(brokerPassword.toCharArray());
 
             // setup SSL properties
             String sslClientStore =  this.service.getString(R.string.SSLClientStore);
@@ -120,15 +122,16 @@ public class Connection extends Handler
 
             if (mqttClient == null) {
 
-                stash = new MessageStash(applicationRoot + "/" + userName);
+                stash = new MessageStash(applicationRoot + "/" + brokerUsername);
 
                 mqttClient = new MqttAsyncClient(
                         brokerUrl,
-                        userName,
-                        new MqttDefaultFilePersistence(applicationRoot + "/" + userName)
+                        userId,
+                        new MqttDefaultFilePersistence(applicationRoot + "/" + brokerUsername)
                 );
                 Log.d(TAG, "Broker URL: " + brokerUrl);
-                Log.d(TAG, "Connection clientId: " + userName);
+                Log.d(TAG, "Connection clientId: " + brokerUsername);
+                Log.d(TAG, "Connection username: " + brokerUsername);
                 Log.d(TAG, "Application path: " + applicationRoot);
 
                 mqttClient.setCallback(new MqttCallback() {

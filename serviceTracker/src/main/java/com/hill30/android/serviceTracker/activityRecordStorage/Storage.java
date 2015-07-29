@@ -63,7 +63,9 @@ public class Storage extends Service {
     public void startConnection() {
         messagingServicePreferences = new MessagingServicePreferences(getApplication());
         if(messagingServicePreferences.isValid()) {
-            serviceConnection = new ServiceConnection(this, topic,
+            serviceConnection = new ServiceConnection(this,
+                    topic,
+                    messagingServicePreferences.getUserId(),
                     messagingServicePreferences.getUrl(),
                     messagingServicePreferences.getUsername(),
                     messagingServicePreferences.getPassword(),

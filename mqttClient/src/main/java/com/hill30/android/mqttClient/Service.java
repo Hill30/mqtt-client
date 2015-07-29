@@ -20,8 +20,10 @@ public class Service extends android.app.Service {
     public static final String TAG = "MQTT Service";
     public static final String TOPIC_NAME = "com.hill30.android.mqttClient.Service.TOPIC_NAME";
     public static final String BROKER_URL = "com.hill30.android.mqttClient.Service.BROKER_URL";
-    public static final String USERNAME = "com.hill30.android.mqttClient.Service.USERNAME";
-    public static final String PASSWORD = "com.hill30.android.mqttClient.Service.PASSWORD";
+    public static final String BROKER_USERNAME = "com.hill30.android.mqttClient.Service.BROKER_USERNAME";
+    public static final String BROKER_PASSWORD = "com.hill30.android.mqttClient.Service.BROKER_PASSWORD";
+    public static final String USER_ID = "com.hill30.android.mqttClient.Service.USER_ID";
+
     public static final int RECONNECT = 1;
     public static final String SERVICE_COMMAND = "com.hill30.android.mqttClient.service-command";
     private static final int retry_interval = 20000; //milliseconds

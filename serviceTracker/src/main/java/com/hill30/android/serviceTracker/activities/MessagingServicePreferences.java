@@ -7,8 +7,9 @@ import android.content.SharedPreferences;
 public class MessagingServicePreferences {
 
     private static final String URL = "com.hill30.android.serviceTracker.activities.MessagingServicePreferences.URL";
-    private static final String USERNAME = "com.hill30.android.serviceTracker.activities.MessagingServicePreferences.USERNAME";
-    private static final String PASSWORD = "com.hill30.android.serviceTracker.activities.MessagingServicePreferences.PASSWORD";
+    private static final String USER_ID = "com.hill30.android.serviceTracker.activities.MessagingServicePreferences.USER_ID";
+    private static final String BROKER_USERNAME = "com.hill30.android.serviceTracker.activities.MessagingServicePreferences.BROKER_USERNAME";
+    private static final String BROKER_PASSWORD = "com.hill30.android.serviceTracker.activities.MessagingServicePreferences.BROKER_PASSWORD";
     private static final String PREFERENCES = "com.hill30.android.serviceTracker.activities.MessagingServicePreferences";
 
     private Application application;
@@ -39,19 +40,27 @@ public class MessagingServicePreferences {
     }
 
     public String getUsername(){
-        return getPreferences().getString(USERNAME, null);
+        return getPreferences().getString(BROKER_USERNAME, null);
     }
 
-    public void saveUsername(String url){
-        getPreferences().edit().putString(USERNAME, url).commit();
+    public void saveUsername(String username){
+        getPreferences().edit().putString(BROKER_USERNAME, username).commit();
     }
 
     public String getPassword(){
-        return getPreferences().getString(PASSWORD, null);
+        return getPreferences().getString(BROKER_PASSWORD, null);
     }
 
-    public void savePassword(String url){
-        getPreferences().edit().putString(PASSWORD, url).commit();
+    public void savePassword(String password){
+        getPreferences().edit().putString(BROKER_PASSWORD, password).commit();
+    }
+
+    public String getUserId(){
+        return getPreferences().getString(USER_ID, null);
+    }
+
+    public void saveUserId(String userId){
+        getPreferences().edit().putString(USER_ID, userId).commit();
     }
 
 
