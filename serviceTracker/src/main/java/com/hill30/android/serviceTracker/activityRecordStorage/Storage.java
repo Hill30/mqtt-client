@@ -69,6 +69,7 @@ public class Storage extends Service {
                     messagingServicePreferences.getUrl(),
                     messagingServicePreferences.getUsername(),
                     messagingServicePreferences.getPassword(),
+                    messagingServicePreferences.getClientId(),
 
                     new ServiceConnection.MessageListener() {
 

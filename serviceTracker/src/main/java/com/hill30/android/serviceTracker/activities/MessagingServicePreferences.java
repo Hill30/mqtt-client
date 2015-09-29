@@ -8,11 +8,13 @@ public class MessagingServicePreferences {
 
     private static final String URL = "com.hill30.android.serviceTracker.activities.MessagingServicePreferences.URL";
     private static final String USER_ID = "com.hill30.android.serviceTracker.activities.MessagingServicePreferences.USER_ID";
+    private static final String CLIENT_ID = "com.hill30.android.serviceTracker.activities.MessagingServicePreferences.CLIENT_ID";
     private static final String BROKER_USERNAME = "com.hill30.android.serviceTracker.activities.MessagingServicePreferences.BROKER_USERNAME";
     private static final String BROKER_PASSWORD = "com.hill30.android.serviceTracker.activities.MessagingServicePreferences.BROKER_PASSWORD";
     private static final String PREFERENCES = "com.hill30.android.serviceTracker.activities.MessagingServicePreferences";
 
     private Application application;
+    private String clientId;
 
     public MessagingServicePreferences(Application application) {
         this.application = application;
@@ -64,4 +66,11 @@ public class MessagingServicePreferences {
     }
 
 
+    public String getClientId() {
+        return getPreferences().getString(CLIENT_ID, null);
+    }
+
+    public void saveClientId(String clientId) {
+        getPreferences().edit().putString(CLIENT_ID, clientId).commit();
+    }
 }

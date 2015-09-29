@@ -23,6 +23,7 @@ public class Service extends android.app.Service {
     public static final String BROKER_USERNAME = "com.hill30.android.mqttClient.Service.BROKER_USERNAME";
     public static final String BROKER_PASSWORD = "com.hill30.android.mqttClient.Service.BROKER_PASSWORD";
     public static final String USER_ID = "com.hill30.android.mqttClient.Service.USER_ID";
+    public static final String CLIENT_ID = "com.hill30.android.mqttClient.Service.CLIENT_ID";
 
     public static final int RECONNECT = 1;
     public static final String SERVICE_COMMAND = "com.hill30.android.mqttClient.service-command";

@@ -77,7 +77,7 @@ public class ServiceConnection implements android.content.ServiceConnection {
      */
 
     public ServiceConnection(Context context,
-                             String topic, String userId, String brokerUrl, String username, String password,
+                             String topic, String userId, String brokerUrl, String username, String password, String clientId,
                              MessageListener messageListener, ConnectionStateListener connectionStateListener) {
         this.context = context;
         this.messageListener = messageListener;
@@ -92,7 +92,8 @@ public class ServiceConnection implements android.content.ServiceConnection {
                         .putExtra(Service.USER_ID, userId)
                         .putExtra(Service.BROKER_URL, brokerUrl)
                         .putExtra(Service.BROKER_USERNAME, username)
-                        .putExtra(Service.BROKER_PASSWORD, password),
+                        .putExtra(Service.BROKER_PASSWORD, password)
+                        .putExtra(Service.CLIENT_ID, clientId),
                 this,
                 Context.BIND_AUTO_CREATE);
     }
@@ -103,8 +104,8 @@ public class ServiceConnection implements android.content.ServiceConnection {
      * @param topic
      */
 
-    public ServiceConnection(Context context, String topic,  String userId, String brokerUrl, String username, String password) {
-        this(context, topic, userId, brokerUrl, username, password, null, null);
+    public ServiceConnection(Context context, String topic,  String userId, String brokerUrl, String username, String password, String clientId) {
+        this(context, topic, userId, brokerUrl, username, password, clientId, null, null);
     }
 
     @Override

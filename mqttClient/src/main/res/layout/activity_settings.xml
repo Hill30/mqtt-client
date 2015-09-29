@@ -20,6 +20,13 @@
         />
 
     <EditText
+        android:id="@+id/txtClientId"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:hint="Client ID"
+        />
+
+    <EditText
         android:id="@+id/txtUsername"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"

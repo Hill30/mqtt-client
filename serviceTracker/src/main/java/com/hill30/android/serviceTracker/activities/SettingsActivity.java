@@ -15,6 +15,7 @@ public class SettingsActivity extends Activity {
     private EditText txtUsername;
     private EditText txtPassword;
     private EditText txtUserId;
+    private EditText txtClientId;
     private MessagingServicePreferences prefs;
 
     @Override
@@ -28,6 +29,7 @@ public class SettingsActivity extends Activity {
         txtUsername = (EditText) findViewById(com.hill30.android.mqttClient.R.id.txtUsername);
         txtPassword = (EditText) findViewById(com.hill30.android.mqttClient.R.id.txtPassword);
         txtUserId = (EditText) findViewById(com.hill30.android.mqttClient.R.id.txtUserId);
+        txtClientId = (EditText) findViewById(com.hill30.android.mqttClient.R.id.txtClientId);
 
         findViewById(com.hill30.android.mqttClient.R.id.btnSave).setOnClickListener(new View.OnClickListener() {
             @Override
@@ -37,11 +39,13 @@ public class SettingsActivity extends Activity {
                 String username = txtUsername.getText().toString().trim();
                 String password = txtPassword.getText().toString().trim();
                 String userId = txtUserId.getText().toString().trim();
+                String clientId = txtClientId.getText().toString().trim();
 
                 prefs.saveUrl(brokerURL);
                 prefs.saveUsername(username);
                 prefs.savePassword(password);
                 prefs.saveUserId(userId);
+                prefs.saveClientId(clientId);
 
                 Intent restartConnectionIntent = new Intent(Storage.RESTART_CONNECTION);
                 SettingsActivity.this.sendBroadcast(restartConnectionIntent);
@@ -60,6 +64,7 @@ public class SettingsActivity extends Activity {
             txtUserId.setText("253012");
             txtUsername.setText("admin");
             txtPassword.setText("admin");
+            txtClientId.setText("ClientId");
         } else {
             txtUrl.setText(prefs.getUrl());
             txtUsername.setText(prefs.getUsername());

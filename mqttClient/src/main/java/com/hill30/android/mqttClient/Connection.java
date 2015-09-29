@@ -43,6 +43,7 @@ public class Connection extends Handler
     private String brokerUsername;
     private String brokerPassword;
     private String userId;
+    private String clientId;
 
     // todo: exception processing/reporting. Also applies to all other places with printStackTrace
 
@@ -66,7 +67,7 @@ public class Connection extends Handler
         return topic + "/Outbound";
     }
 
-    public void connect(ConnectionBinder connectionBinder, String topic, String userId, String brokerUrl, String brokerUsername, final String brokerPassword) throws MqttException, IOException {
+    public void connect(ConnectionBinder connectionBinder, String topic, String userId, String brokerUrl, String brokerUsername, String brokerPassword, String clientId) throws MqttException, IOException {
 
         recipients.put(topic, connectionBinder);
 
@@ -74,6 +75,7 @@ public class Connection extends Handler
         this.userId = userId;
         this.brokerUsername = brokerUsername;
         this.brokerPassword = brokerPassword;
+        this.clientId = clientId;
 
         if (connectIfNecessary())
             subscribe(topic);
@@ -126,11 +128,11 @@ public class Connection extends Handler
 
                 mqttClient = new MqttAsyncClient(
                         brokerUrl,
-                        userId,
+                        clientId,
                         new MqttDefaultFilePersistence(applicationRoot + "/" + brokerUsername)
                 );
                 Log.d(TAG, "Broker URL: " + brokerUrl);
-                Log.d(TAG, "Connection clientId: " + brokerUsername);
+                Log.d(TAG, "Connection clientId: " + clientId);
                 Log.d(TAG, "Connection username: " + brokerUsername);
                 Log.d(TAG, "Application path: " + applicationRoot);
 
