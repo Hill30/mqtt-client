@@ -56,7 +56,7 @@ public class SettingsActivity extends Activity {
         super.onResume();
 
         if(!prefs.isValid()){
-            txtUrl.setText("tcp://10.0.1.134:1883");
+            txtUrl.setText("ssl://10.0.1.55:8883");
             txtUserId.setText("253012");
             txtUsername.setText("admin");
             txtPassword.setText("admin");

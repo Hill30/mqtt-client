@@ -107,18 +107,22 @@ public class Connection extends Handler
     public boolean connectIfNecessary() throws MqttException, IOException {
 
         synchronized (synchLock) {
-
+            SslUtility.newInstance(service);
             MqttConnectOptions connectionOptions = new MqttConnectOptions();
             connectionOptions.setCleanSession(false);
             connectionOptions.setUserName(brokerUsername);
             connectionOptions.setPassword(brokerPassword.toCharArray());
+//            connectionOptions.setSocketFactory(SslUtility.getInstance().getSocketFactory(R.raw.client, "password"));
+            connectionOptions.setSocketFactory(SslUtility.getInstance().getSocketFactoryForSelfSignedCertificate());
+
+
 
             // setup SSL properties
-            String sslClientStore =  this.service.getString(R.string.SSLClientStore);
-            if(!sslClientStore.isEmpty()){
-                String sslClientStorePswd =  this.service.getString(R.string.SSLClientStorePswd);
-                connectionOptions.setSSLProperties( getSSLProperties("","",sslClientStore, sslClientStorePswd) );
-            }
+//            String sslClientStore =  this.service.getString(R.string.SSLClientStore);
+//            if(!sslClientStore.isEmpty()){
+//                String sslClientStorePswd =  this.service.getString(R.string.SSLClientStorePswd);
+//                connectionOptions.setSSLProperties( getSSLProperties("client_6.bks","password","client.ts", "password") );
+//            }
 
             if (mqttClient == null) {
 

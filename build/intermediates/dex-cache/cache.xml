@@ -9,10 +9,17 @@
         <dex dex="C:\Work\mqtt-client\serviceTracker\build\intermediates\pre-dexed\debug\support-v4-19.1.0-d69e6babaa392480064790b57180d7bc29157bd2.jar" />
     </item>
     <item
+        jar="C:\Work\mqtt-client\serviceTracker\build\intermediates\exploded-aar\mqtt-client\mqttClient\unspecified\libs\mqtt-client-1.0.2.jar"
+        jumboMode="false"
+        revision="20.0.0"
+        sha1="11752d3f24d1a9deda4533a7ca18d8496417ceeb">
+        <dex dex="C:\Work\mqtt-client\serviceTracker\build\intermediates\pre-dexed\debug\mqtt-client-1.0.2-c6854e0d116369ce77f634039f8797021c59429f.jar" />
+    </item>
+    <item
         jar="C:\Work\mqtt-client\serviceTracker\build\intermediates\exploded-aar\mqtt-client\mqttClient\unspecified\classes.jar"
         jumboMode="false"
         revision="20.0.0"
-        sha1="1d05ceb743f1fb6f14684e4412a0f1949ce5a2d5">
+        sha1="2584bcab1c6b1bb7bc470e95fb9d8a798e2c37a1">
         <dex dex="C:\Work\mqtt-client\serviceTracker\build\intermediates\pre-dexed\debug\classes-8c7fa9ead1c61a9579af6f77a194d8e85eb25ac3.jar" />
     </item>
     <item
@@ -21,13 +28,6 @@
         revision="20.0.0"
         sha1="3499ceba05ca1f6037c6a2fad73df8f636224a28">
         <dex dex="C:\Work\mqtt-client\serviceTracker\build\intermediates\pre-dexed\debug\classes-500337f762fbd4c227110dfc01e46b07e03fd5c6.jar" />
-    </item>
-    <item
-        jar="C:\Work\mqtt-client\serviceTracker\build\intermediates\exploded-aar\mqtt-client\mqttClient\unspecified\libs\mqtt-client-0.4.0.jar"
-        jumboMode="false"
-        revision="20.0.0"
-        sha1="02315d1759d01e52495e040e6e538aaa2e91c7f6">
-        <dex dex="C:\Work\mqtt-client\serviceTracker\build\intermediates\pre-dexed\debug\mqtt-client-0.4.0-f73e510cbb46d642f1500d8f11b22e0871b5597b.jar" />
     </item>
 
 </items>
