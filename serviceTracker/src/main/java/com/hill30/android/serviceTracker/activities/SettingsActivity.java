@@ -70,6 +70,7 @@ public class SettingsActivity extends Activity {
             txtUsername.setText(prefs.getUsername());
             txtPassword.setText(prefs.getPassword());
             txtUserId.setText(prefs.getUserId());
+            txtClientId.setText(prefs.getClientId());
         }
     }
 }

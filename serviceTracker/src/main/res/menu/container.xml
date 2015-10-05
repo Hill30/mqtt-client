@@ -18,4 +18,9 @@
         android:orderInCategory="100"
         app:showAsAction="never" />
 
+    <item android:id="@+id/action_disconnect"
+        android:title="@string/action_disconnect"
+        android:orderInCategory="100"
+        app:showAsAction="never" />
+
 </menu>

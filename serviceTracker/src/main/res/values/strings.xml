@@ -8,5 +8,6 @@
     <string name="title_activity_container">Container</string>
     <string name="action_suspend_connection">Suspend connection</string>
     <string name="action_resume_connection">Resume Connection</string>
+    <string name="action_disconnect">Disconnect</string>
 
 </resources>

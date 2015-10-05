@@ -2,6 +2,8 @@ package com.hill30.android.serviceTracker.activityRecordStorage;
 
 import android.os.Binder;
 
+import com.hill30.android.mqttClient.ServiceConnection;
+
 import java.util.Map;
 import java.util.Set;
 
@@ -37,6 +39,10 @@ public class StorageBinder extends Binder {
 
     public void suspendConnection(){
         storage.suspendConnection();
+    }
+
+    public void disconnect(ServiceConnection.ConnectionStateListener connectionStateListener){
+        storage.disconnect(connectionStateListener);
     }
 
     public void resumeConnection(){

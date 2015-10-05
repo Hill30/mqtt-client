@@ -53,8 +53,6 @@ public class Storage extends Service {
         registerReceiver(new BroadcastReceiver() {
             @Override
             public void onReceive(Context context, Intent intent) {
-                if(serviceConnection != null)
-                    serviceConnection.close();
                 startConnection();
             }
         }, new IntentFilter(RESTART_CONNECTION));
@@ -63,38 +61,52 @@ public class Storage extends Service {
     public void startConnection() {
         messagingServicePreferences = new MessagingServicePreferences(getApplication());
         if(messagingServicePreferences.isValid()) {
-            serviceConnection = new ServiceConnection(this,
-                    topic,
-                    messagingServicePreferences.getUserId(),
-                    messagingServicePreferences.getUrl(),
-                    messagingServicePreferences.getUsername(),
-                    messagingServicePreferences.getPassword(),
-                    messagingServicePreferences.getClientId(),
+            if(serviceConnection != null) {
+                serviceConnection.disconnect(new ServiceConnection.ConnectionStateListener() {
+                    @Override
+                    public void onConnectionStateChanged(int connectionState) {
+                        createConnection();
+                    }
+                });
+            } else {
+                createConnection();
+            }
 
-                    new ServiceConnection.MessageListener() {
-
-                        @Override
-                        public void onMessageArrived(String message) {
-                            try {
-                                Log.d(TAG, "Message " + message + " arrived to serviceTracer app");
-                                final ActivityRecordMessage activityRecord = new ActivityRecordMessage(nextId, new JSONObject(message));
-                                records.put(nextId, activityRecord);
-                                storageBinder.onNewActivityRecord(nextId, activityRecord);
-                                nextId += 1;
-                            } catch (JSONException e) {
-                                e.printStackTrace();
-                            }
-                        }
-                    },
-                    new ServiceConnection.ConnectionStateListener() {
-                        @Override
-                        public void onConnectionStateChanged(int connectionState) {
-                            notification.updateStatus(connectionState);
-                        }
-                    });
         } else {
             startActivity(new Intent(this, SettingsActivity.class).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK));
         }
+    }
+
+    private void createConnection() {
+        serviceConnection = new ServiceConnection(Storage.this,
+                topic,
+                messagingServicePreferences.getUserId(),
+                messagingServicePreferences.getUrl(),
+                messagingServicePreferences.getUsername(),
+                messagingServicePreferences.getPassword(),
+                messagingServicePreferences.getClientId(),
+
+                new ServiceConnection.MessageListener() {
+
+                    @Override
+                    public void onMessageArrived(String message) {
+                        try {
+                            Log.d(TAG, "Message " + message + " arrived to serviceTracer app");
+                            final ActivityRecordMessage activityRecord = new ActivityRecordMessage(nextId, new JSONObject(message));
+                            records.put(nextId, activityRecord);
+                            storageBinder.onNewActivityRecord(nextId, activityRecord);
+                            nextId += 1;
+                        } catch (JSONException e) {
+                            e.printStackTrace();
+                        }
+                    }
+                },
+                new ServiceConnection.ConnectionStateListener() {
+                    @Override
+                    public void onConnectionStateChanged(int connectionState) {
+                        notification.updateStatus(connectionState);
+                    }
+                });
     }
 
     @Override
@@ -129,6 +141,10 @@ public class Storage extends Service {
 
     public void suspendConnection(){
         serviceConnection.suspend();
+    }
+
+    public void disconnect(ServiceConnection.ConnectionStateListener connectionStateListener){
+        serviceConnection.disconnect(connectionStateListener);
     }
 
     public void resumeConnection() {

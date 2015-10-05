@@ -77,6 +77,7 @@ public class Connection extends Handler
         this.brokerPassword = brokerPassword;
         this.clientId = clientId;
 
+
         if (connectIfNecessary())
             subscribe(topic);
     }
@@ -88,9 +89,9 @@ public class Connection extends Handler
             case Service.RECONNECT:
                 try {
 
-//                    if (mqttClient != null)
-//                        mqttClient.close();
-//                    mqttClient = null;
+                    if (mqttClient != null)
+                        mqttClient.close();
+                    mqttClient = null;
 
                     connectIfNecessary();
 
@@ -108,110 +109,117 @@ public class Connection extends Handler
 
     public boolean connectIfNecessary() throws MqttException, IOException {
 
-        synchronized (synchLock) {
+        if (brokerUsername != null && !brokerUsername.isEmpty() && brokerPassword != null && !brokerPassword.isEmpty()) {
+            synchronized (synchLock) {
 
-            MqttConnectOptions connectionOptions = new MqttConnectOptions();
-            connectionOptions.setCleanSession(false);
-            connectionOptions.setUserName(brokerUsername);
-            connectionOptions.setPassword(brokerPassword.toCharArray());
+                MqttConnectOptions connectionOptions = new MqttConnectOptions();
+                connectionOptions.setCleanSession(false);
+                connectionOptions.setUserName(brokerUsername);
+                connectionOptions.setPassword(brokerPassword.toCharArray());
 
-            // setup SSL properties
-            String sslClientStore =  this.service.getString(R.string.SSLClientStore);
-            if(!sslClientStore.isEmpty()){
-                String sslClientStorePswd =  this.service.getString(R.string.SSLClientStorePswd);
-                connectionOptions.setSSLProperties( getSSLProperties("","",sslClientStore, sslClientStorePswd) );
-            }
+                // setup SSL properties
+                String sslClientStore = this.service.getString(R.string.SSLClientStore);
+                if (!sslClientStore.isEmpty()) {
+                    String sslClientStorePswd = this.service.getString(R.string.SSLClientStorePswd);
+                    connectionOptions.setSSLProperties(getSSLProperties("", "", sslClientStore, sslClientStorePswd));
+                }
 
-            if (mqttClient == null) {
+                if (mqttClient == null) {
 
-                stash = new MessageStash(applicationRoot + "/" + brokerUsername);
+                    stash = new MessageStash(applicationRoot + "/" + brokerUsername);
 
-                mqttClient = new MqttAsyncClient(
-                        brokerUrl,
-                        clientId,
-                        new MqttDefaultFilePersistence(applicationRoot + "/" + brokerUsername)
-                );
-                Log.d(TAG, "Broker URL: " + brokerUrl);
-                Log.d(TAG, "Connection clientId: " + clientId);
-                Log.d(TAG, "Connection username: " + brokerUsername);
-                Log.d(TAG, "Application path: " + applicationRoot);
+                    mqttClient = new MqttAsyncClient(
+                            brokerUrl,
+                            clientId,
+                            new MqttDefaultFilePersistence(applicationRoot + "/" + brokerUsername)
+                    );
+                    Log.d(TAG, "Broker URL: " + brokerUrl);
+                    Log.d(TAG, "Connection clientId: " + clientId);
+                    Log.d(TAG, "Connection username: " + brokerUsername);
+                    Log.d(TAG, "Application path: " + applicationRoot);
 
-                mqttClient.setCallback(new MqttCallback() {
+                    mqttClient.setCallback(new MqttCallback() {
+                        @Override
+                        public void connectionLost(Throwable cause) {
+                            Log.e(TAG, "Connection lost. Cause: " + cause.toString());
+                            service.onConnectionLost();
+                            for (ConnectionBinder recipient : recipients.values()) {
+                                recipient.onConnectionStateChanged(ServiceConnection.CONNECTION_STATUS_DISCONNECTED);
+                        }
+                        }
+
+                        @Override
+                        public void messageArrived(String topic, MqttMessage message) throws Exception {
+                            ConnectionBinder recipient = recipients.get(getTopicFromInbound(topic));
+                            if (recipient != null)
+                                recipient.onMessageReceived(message.toString());
+                            Log.d(TAG, "Message " + message + " received");
+                        }
+
+                        @Override
+                        public void deliveryComplete(IMqttDeliveryToken token) {
+                            Log.d(TAG, "Message delivery complete");
+                        }
+                    });
+                }
+
+                if (mqttClient.isConnected()) // connection is already active - we can subscribe to the topic synchronously (see connect method)
+                    return true;
+
+                if (connecting) // connecting was earlier initiated from a different thread - just let things take their course
+                    return false;
+
+                connecting = true;
+
+                for (ConnectionBinder recipient : recipients.values()) {
+                    recipient.onConnectionStateChanged(ServiceConnection.CONNECTION_STATUS_CONNECTING);
+                }
+
+                mqttClient.connect(connectionOptions, null, new IMqttActionListener() {
                     @Override
-                    public void connectionLost(Throwable cause) {
-                        Log.e(TAG, "Connection lost. Cause: " + cause.toString());
+                    public void onSuccess(IMqttToken asyncActionToken) {
+                        connecting = false;
+                        Log.d(TAG, "connected");
+
+                        for (MessageStash.Message message : stash.get()) {
+                            try {
+                                send(message.topic(), message.body());
+                                message.commit();
+                            } catch (IOException e) {
+                                // we can safely ignore it here because this code is executed after the connection is restored
+                                // so there will be no need to stash the message, but even the connection will be lost while
+                                // resubmitting messages here there will be no need to worry - the message will remain stashed
+                                // because message.commit will not be executed
+                            }
+                        }
+
+                        for (Map.Entry<String, ConnectionBinder> binder : recipients.entrySet())
+                            subscribe(binder.getKey());
+
+                        for (ConnectionBinder recipient : recipients.values()) {
+                            recipient.onConnectionStateChanged(ServiceConnection.CONNECTION_STATUS_CONNECTED);
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
+                        connecting = false;
+                        // todo: onConnectionLost only on recoverable exceptions
+                        Log.e(TAG, "Failed to connect :" + exception.toString());
                         service.onConnectionLost();
-                        for(ConnectionBinder recipient : recipients.values()){
+                        for (ConnectionBinder recipient : recipients.values()) {
                             recipient.onConnectionStateChanged(ServiceConnection.CONNECTION_STATUS_DISCONNECTED);
                         }
                     }
-
-                    @Override
-                    public void messageArrived(String topic, MqttMessage message) throws Exception {
-                        ConnectionBinder recipient = recipients.get(getTopicFromInbound(topic));
-                        if (recipient != null)
-                            recipient.onMessageReceived(message.toString());
-                        Log.d(TAG, "Message " + message + " received");
-                    }
-
-                    @Override
-                    public void deliveryComplete(IMqttDeliveryToken token) {
-                        Log.d(TAG, "Message delivery complete");
-                    }
                 });
             }
-
-            if(mqttClient.isConnected()) // connection is already active - we can subscribe to the topic synchronously (see connect method)
-                return true;
-
-            if (connecting) // connecting was earlier initiated from a different thread - just let things take their course
-                return false;
-
-            connecting = true;
-
-            for(ConnectionBinder recipient : recipients.values()){
-                recipient.onConnectionStateChanged(ServiceConnection.CONNECTION_STATUS_CONNECTING);
+        } else {
+            // in case credentials passed into library are invalid, do not even try to connect
+            for (ConnectionBinder recipient : recipients.values()) {
+                recipient.onConnectionStateChanged(ServiceConnection.CONNECTION_STATUS_DISCONNECTED);
             }
-
-            mqttClient.connect(connectionOptions, null, new IMqttActionListener() {
-                @Override
-                public void onSuccess(IMqttToken asyncActionToken) {
-                    connecting = false;
-                    Log.d(TAG, "connected");
-
-                    for (MessageStash.Message message : stash.get()) {
-                        try {
-                            send(message.topic(), message.body());
-                            message.commit();
-                        } catch (IOException e) {
-                            // we can safely ignore it here because this code is executed after the connection is restored
-                            // so there will be no need to stash the message, but even the connection will be lost while
-                            // resubmitting messages here there will be no need to worry - the message will remain stashed
-                            // because message.commit will not be executed
-                        }
-                    }
-
-                    for (Map.Entry<String, ConnectionBinder> binder : recipients.entrySet())
-                        subscribe(binder.getKey());
-
-                    for(ConnectionBinder recipient : recipients.values()){
-                        recipient.onConnectionStateChanged(ServiceConnection.CONNECTION_STATUS_CONNECTED);
-                    }
-                }
-
-                @Override
-                public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
-                    connecting = false;
-                    // todo: onConnectionLost only on recoverable exceptions
-                    Log.e(TAG, "Failed to connect :" + exception.toString());
-                    service.onConnectionLost();
-                    for(ConnectionBinder recipient : recipients.values()){
-                        recipient.onConnectionStateChanged(ServiceConnection.CONNECTION_STATUS_DISCONNECTED);
-                    }
-                }
-            });
-            return false;
         }
+        return false;
     }
 
     private void subscribe(String topic) {
@@ -347,6 +355,45 @@ public class Connection extends Handler
             Log.e(TAG, "Unable to close MQTT connection at protocol level");
         } catch (IOException e) {
             Log.e(TAG, "Unable to close MQTT connection at network level");
+        }
+    }
+
+    public void disconnect(final ServiceConnection.ConnectionStateListener connectionStateListener) {
+        if(mqttClient != null && mqttClient.isConnected()){
+            try {
+                mqttClient.disconnect(null, new IMqttActionListener() {
+                    @Override
+                    public void onSuccess(IMqttToken asyncActionToken) {
+                        Log.d(TAG, "MQTT Connection suspended");
+                        for(ConnectionBinder recipient : recipients.values()){
+                            recipient.onConnectionStateChanged(ServiceConnection.CONNECTION_STATUS_DISCONNECTED);
+                        }
+
+                        if(connectionStateListener != null){
+                            connectionStateListener.onConnectionStateChanged(ServiceConnection.CONNECTION_STATUS_DISCONNECTED);
+                        }
+
+                        try {
+                            if (mqttClient != null)
+                                mqttClient.close();
+                            mqttClient = null;
+                        } catch (MqttException e) {
+                            Log.d(TAG, "MQTT Client closed");
+                        }
+                    }
+
+                    @Override
+                    public void onFailure(IMqttToken asyncActionToken, Throwable exception) {
+                        Log.e(TAG, "Unable to suspend MQTT connection.");
+                    }
+                });
+            } catch (MqttException e) {
+                Log.e(TAG, "Unable to close MQTT connection");
+            }
+        } else {
+            if(connectionStateListener != null){
+                connectionStateListener.onConnectionStateChanged(ServiceConnection.CONNECTION_STATUS_DISCONNECTED);
+            }
         }
     }
 

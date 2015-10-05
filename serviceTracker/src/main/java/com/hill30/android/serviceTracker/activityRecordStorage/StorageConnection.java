@@ -73,6 +73,9 @@ public class StorageConnection implements ServiceConnection {
     public void suspend() {
         service.suspendConnection();
     }
+    public void disconnect(com.hill30.android.mqttClient.ServiceConnection.ConnectionStateListener connectionStateListener) {
+        service.disconnect(connectionStateListener);
+    }
 
     public void resume() {
         service.resumeConnection();

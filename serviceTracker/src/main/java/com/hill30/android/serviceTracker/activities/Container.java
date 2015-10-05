@@ -12,6 +12,7 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 
+import com.hill30.android.mqttClient.ServiceConnection;
 import com.hill30.android.serviceTracker.MVCControllers;
 import com.hill30.android.serviceTracker.R;
 import com.hill30.android.serviceTracker.activityRecordStorage.StorageConnection;
@@ -126,6 +127,14 @@ public class Container extends ActionBarActivity {
                 break;
             case R.id.action_resume:
                 storageConnection.resume();
+                break;
+             case R.id.action_disconnect:
+                storageConnection.disconnect(new ServiceConnection.ConnectionStateListener() {
+                    @Override
+                    public void onConnectionStateChanged(int connectionState) {
+                        Log.d(TAG, "Disconnected");
+                    }
+                });
                 break;
             case R.id.action_settings:
                 startActivity(new Intent(Container.this, SettingsActivity.class));

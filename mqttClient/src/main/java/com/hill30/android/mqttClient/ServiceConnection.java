@@ -34,6 +34,14 @@ public class ServiceConnection implements android.content.ServiceConnection {
     public static final int CONNECTION_STATUS_CONNECTED = 1;
     public static final int CONNECTION_STATUS_DISCONNECTED = 2;
     public static final int CONNECTION_STATUS_CONNECTING = 3;
+    private final String topic;
+    private String brokerUrl;
+    private String brokerUsername;
+    private String brokerPassword;
+    private String userId;
+    private String clientId;
+
+    private boolean isServiceBound;
 
     private ConnectionBinder connectionBinder;
     private Context context;
@@ -82,6 +90,12 @@ public class ServiceConnection implements android.content.ServiceConnection {
         this.context = context;
         this.messageListener = messageListener;
         this.connectionStateListener = connectionStateListener;
+        this.topic = topic;
+        this.brokerUrl = brokerUrl;
+        this.brokerUsername = username;
+        this.brokerPassword = password;
+        this.userId = userId;
+        this.clientId = clientId;
 
         startIfNecessary(context, Service.class);
 
@@ -96,6 +110,10 @@ public class ServiceConnection implements android.content.ServiceConnection {
                         .putExtra(Service.CLIENT_ID, clientId),
                 this,
                 Context.BIND_AUTO_CREATE);
+
+        isServiceBound = true;
+
+
     }
 
     /**
@@ -113,6 +131,7 @@ public class ServiceConnection implements android.content.ServiceConnection {
         connectionBinder = (ConnectionBinder)binder;
         connectionBinder.listener(messageListener);
         connectionBinder.setConnectionStateListener(connectionStateListener);
+        connectionBinder.setConnectionParameters(topic, brokerUrl, brokerUsername, brokerPassword, userId, clientId);
         try {
             connectionBinder.connect();
         } catch (MqttException e) {
@@ -142,6 +161,20 @@ public class ServiceConnection implements android.content.ServiceConnection {
 
     public void suspend() { connectionBinder.suspend(); }
 
+    public void disconnect(final ConnectionStateListener connectionStateListener) {
+        connectionBinder.disconnect(new ConnectionStateListener() {
+            @Override
+            public void onConnectionStateChanged(int connectionState) {
+                if(connectionState == ServiceConnection.CONNECTION_STATUS_DISCONNECTED && isServiceBound) {
+                    context.unbindService(ServiceConnection.this);
+                    isServiceBound = false;
+                }
+
+                connectionStateListener.onConnectionStateChanged(connectionState);
+            }
+        });
+    }
+
     public void resume() { connectionBinder.resume(); }
 
     public IMqttAsyncClient getMqttClient() { return connectionBinder.getMqttClient(); }
@@ -149,7 +182,10 @@ public class ServiceConnection implements android.content.ServiceConnection {
      * Releases resources associated with the connection
      */
     public void close() {
-        context.unbindService(this);
+        if(isServiceBound) {
+            context.unbindService(this);
+            isServiceBound = false;
+        }
     }
 
 }

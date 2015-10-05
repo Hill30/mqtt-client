@@ -10,12 +10,12 @@ import java.io.IOException;
 
 class ConnectionBinder extends Binder {
     private final Connection connection;
-    private final String topic;
-    private final String brokerUrl;
-    private final String brokerUsername;
-    private final String brokerPassword;
-    private final String userId;
-    private final String clientId;
+    private String topic;
+    private String brokerUrl;
+    private String brokerUsername;
+    private String brokerPassword;
+    private String userId;
+    private String clientId;
 
     private ServiceConnection.MessageListener messageListener;
     private ServiceConnection.ConnectionStateListener connectionStateListener;
@@ -28,6 +28,15 @@ class ConnectionBinder extends Binder {
         brokerPassword = intent.getStringExtra(Service.BROKER_PASSWORD);
         userId = intent.getStringExtra(Service.USER_ID);
         clientId = intent.getStringExtra(Service.CLIENT_ID);
+    }
+
+    public void setConnectionParameters(String topic, String brokerUrl, String username, String password, String userId, String clientId){
+        this.topic = topic;
+        this.brokerUrl = brokerUrl;
+        this.brokerUsername = username;
+        this.brokerPassword = password;
+        this.userId = userId;
+        this.clientId = clientId;
     }
 
     public void connect() throws MqttException, IOException {
@@ -68,7 +77,13 @@ class ConnectionBinder extends Binder {
         connection.suspend();
     }
 
+    public void disconnect(ServiceConnection.ConnectionStateListener connectionStateListener) {
+        connection.disconnect(connectionStateListener);
+    }
+
     public void resume() {
         connection.resume();
     }
+
+
 }
